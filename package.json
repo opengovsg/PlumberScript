@@ -1,0 +1,27 @@
+{
+  "name": "tslox",
+  "description": "An interpreter of the Lox language in TypeScript",
+  "author": "Yuanruo Liang <liangyuanruo@gmail.com>",
+  "private": true,
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/liangyuanruo/tslox"
+  },
+  "bin": {},
+  "scripts": {
+    "build": "tsc",
+    "dev": "ts-node-script ./src/index.ts",
+    "lint": "eslint",
+    "tslox": "node ./build/index.js"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.5",
+    "@typescript-eslint/eslint-plugin": "^6.19.1",
+    "@typescript-eslint/parser": "^6.19.1",
+    "eslint": "^8.56.0",
+    "prettier": "^3.2.4",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.3.3"
+  }
+}
