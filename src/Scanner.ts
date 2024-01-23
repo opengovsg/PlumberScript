@@ -3,6 +3,25 @@ import { Token } from './Token'
 import { TokenType } from './TokenType'
 import { LoxObject } from './types'
 
+const keywords: Record<string, TokenType> = {
+  and: TokenType.And,
+  class: TokenType.Class,
+  else: TokenType.Else,
+  false: TokenType.False,
+  for: TokenType.For,
+  fun: TokenType.Fun,
+  if: TokenType.If,
+  nil: TokenType.Nil,
+  or: TokenType.Or,
+  print: TokenType.Print,
+  return: TokenType.Return,
+  super: TokenType.Super,
+  this: TokenType.This,
+  true: TokenType.True,
+  var: TokenType.Var,
+  while: TokenType.While,
+}
+
 export class Scanner {
   private source: string
   private tokens: Array<Token> = []
@@ -93,11 +112,22 @@ export class Scanner {
       default:
         if (this.isDigit(c)) {
           this.number()
+        } else if (this.isAlpha(c)) {
+          this.identifier()
         } else {
           Lox.error(this.line, 'Unexpected character.')
         }
         break
     }
+  }
+
+  private identifier(): void {
+    while (this.isAlphaNumeric(this.peek())) this.advance()
+
+    const text = this.source.substring(this.start, this.current)
+    text in keywords
+      ? this.addToken(keywords[text])
+      : this.addToken(TokenType.Identifier)
   }
 
   private number(): void {
@@ -150,6 +180,14 @@ export class Scanner {
   private peekNext(): string {
     if (this.current + 1 >= this.source.length) return '\0'
     return this.source.charAt(this.current + 1)
+  }
+
+  private isAlpha(c: string): boolean {
+    return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c === '_'
+  }
+
+  private isAlphaNumeric(c: string): boolean {
+    return this.isAlpha(c) || this.isDigit(c)
   }
 
   private isDigit(c: string) {
