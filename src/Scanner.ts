@@ -71,17 +71,89 @@ export class Scanner {
           this.match('=') ? TokenType.GreaterEqual : TokenType.Greater,
         )
         break
+      case '/':
+        if (this.match('/')) {
+          // A comment goes until the end of the line
+          while (this.peek() !== '\n' && !this.isAtEnd()) this.advance()
+        } else {
+          this.addToken(TokenType.Slash)
+        }
+        break
+      case ' ':
+      case '\r':
+      case '\t':
+        // Ignore whitespace
+        break
+      case '\n':
+        this.line++
+        break
+      case '"':
+        this.string()
+        break
       default:
-        Lox.error(this.line, 'Unexpected character.')
+        if (this.isDigit(c)) {
+          this.number()
+        } else {
+          Lox.error(this.line, 'Unexpected character.')
+        }
         break
     }
   }
 
+  private number(): void {
+    while (this.isDigit(this.peek())) this.advance()
+
+    // Look for a fractional part
+    if (this.peek() === '.' && this.isDigit(this.peekNext())) {
+      // Consume the "."
+      this.advance()
+
+      while (this.isDigit(this.peek())) this.advance()
+    }
+
+    this.addToken(
+      TokenType.Number,
+      parseFloat(this.source.substring(this.start, this.current)),
+    )
+  }
+
+  private string(): void {
+    while (this.peek() != '"' && !this.isAtEnd()) {
+      if (this.peek() === '\n') this.line++
+      this.advance()
+    }
+
+    if (this.isAtEnd()) {
+      Lox.error(this.line, 'Unterminated string.')
+      return
+    }
+
+    this.advance() // The closing ".
+
+    // Trim the surrounding quotes
+    const value = this.source.substring(this.start + 1, this.current - 1)
+    this.addToken(TokenType.String, value)
+  }
+
   private match(expected: string): boolean {
     if (this.isAtEnd()) return false
-    if (this.source.charAt(this.current) != expected) return false
+    if (this.source.charAt(this.current) !== expected) return false
     this.current++
     return true
+  }
+
+  private peek(): string {
+    if (this.isAtEnd()) return '\0'
+    return this.source.charAt(this.current)
+  }
+
+  private peekNext(): string {
+    if (this.current + 1 >= this.source.length) return '\0'
+    return this.source.charAt(this.current + 1)
+  }
+
+  private isDigit(c: string) {
+    return c >= '0' && c <= '9'
   }
 
   private isAtEnd(): boolean {
