@@ -1,7 +1,7 @@
-import { Lox } from '.'
 import { Token } from './Token'
 import { TokenType } from './TokenType'
 import { LoxObject } from './types'
+import { SyntaxError } from './error'
 
 const keywords: Record<string, TokenType> = {
   and: TokenType.And,
@@ -115,7 +115,7 @@ export class Scanner {
         } else if (this.isAlpha(c)) {
           this.identifier()
         } else {
-          Lox.error(this.line, 'Unexpected character.')
+          throw new SyntaxError(`Unexpected character: ${c}`, this.line)
         }
         break
     }
@@ -154,8 +154,7 @@ export class Scanner {
     }
 
     if (this.isAtEnd()) {
-      Lox.error(this.line, 'Unterminated string.')
-      return
+      throw new SyntaxError('Unterminated string', this.line)
     }
 
     this.advance() // The closing ".
