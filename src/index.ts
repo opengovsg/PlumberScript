@@ -3,10 +3,11 @@ import { createInterface } from 'readline'
 import { Scanner } from './Scanner'
 import { errorReporter } from './ErrorReporter'
 import { Parser } from './Parser'
-import { AstPrinter } from './AstPrinter'
+import { Interpreter } from './Interpreter'
 
 const usage = 'Usage: tslox [script]'
 export class Lox {
+  private static readonly interpreter = new Interpreter()
   static main(): void {
     const args = process.argv.slice(2)
 
@@ -75,7 +76,7 @@ export class Lox {
     // Stop if there was a syntax error
     if (errorReporter.hadSyntaxError) return
 
-    console.log(new AstPrinter().stringify(expression))
+    this.interpreter.interpret(expression)
   }
 }
 
