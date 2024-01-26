@@ -1,6 +1,16 @@
-import { BinaryExpr, Expr, GroupingExpr, LiteralExpr, UnaryExpr } from './Expr'
+import {
+  AssignExpr,
+  BinaryExpr,
+  Expr,
+  GroupingExpr,
+  LiteralExpr,
+  UnaryExpr,
+  VariableExpr,
+} from './Expr'
+import { BlockStmt, ExpressionStmt, PrintStmt, Stmt, VarStmt } from './Stmt'
 import { Token } from './Token'
 import { TokenType } from './TokenType'
+import { errorReporter } from './ErrorReporter'
 import { SyntaxError } from './error'
 
 /**
@@ -18,11 +28,19 @@ import { SyntaxError } from './error'
  *
  * Language grammar (in pseudo-Backus-Naur Form):
  *
- * - expression -> equality ;
+ * - program -> declaration* EOF ;
+ * - declaration -> varDecl | statement ;
+ * - varDecl -> "var" IDENTIFIER ( "=" expression )? ";" ;
+ * - statement -> exprStmt | printStmt | block ;
+ * - block -> "{" declaration* "}" ;
+ * - exprStmt -> expression ";" ;
+ * - printStmt -> "print" expression ";" ;
+ * - expression -> assignment ;
+ * - assignment -> IDENTIFER "=" assignment | equality ;
  * - equality -> comparison ( ("!="|"==") comparison )* ;
  * - term -> factor ( ("-"|"+") factor )* ;
  * - factor -> unary ( ("/"|"*") unary )* | primary ;
- * - primary -> NUMBER | STRING | "true" | "false" | "nil" | "(" expression ")" ;
+ * - primary -> NUMBER | STRING | "true" | "false" | "nil" | "(" expression ")" | IDENTIFIER ;
  */
 
 export class Parser {
@@ -33,12 +51,88 @@ export class Parser {
     this.tokens = tokens
   }
 
-  parse(): Expr {
-    return this.expression()
+  parse(): Array<Stmt> {
+    const statements: Array<Stmt> = []
+    while (!this.isAtEnd()) {
+      try {
+        statements.push(this.declaration())
+      } catch (error) {
+        errorReporter.report(error as Error)
+        this.synchronize()
+      }
+    }
+
+    return statements
   }
 
   private expression(): Expr {
-    return this.equality()
+    return this.assignment()
+  }
+
+  private declaration(): Stmt {
+    if (this.match(TokenType.Var)) return this.varDeclaration()
+    return this.statement()
+  }
+
+  private statement(): Stmt {
+    if (this.match(TokenType.Print)) return this.printStatement()
+    if (this.match(TokenType.LeftBrace)) return new BlockStmt(this.block())
+    return this.expressionStatement()
+  }
+
+  private printStatement(): Stmt {
+    const value: Expr = this.expression()
+    this.consume(TokenType.Semicolon, "Expect ';' after value.")
+    return new PrintStmt(value)
+  }
+
+  private varDeclaration(): Stmt {
+    const name: Token = this.consume(
+      TokenType.Identifier,
+      'Expect variable name.',
+    )
+
+    let initializer: Expr | null = null
+    if (this.match(TokenType.Equal)) {
+      initializer = this.expression()
+    }
+
+    this.consume(TokenType.Semicolon, "Expect ';' after variable declaration.")
+    return new VarStmt(name, initializer)
+  }
+
+  private expressionStatement(): Stmt {
+    const expr: Expr = this.expression()
+    this.consume(TokenType.Semicolon, "Expect ';' after value.")
+    return new ExpressionStmt(expr)
+  }
+
+  private block(): Array<Stmt> {
+    const statements: Array<Stmt> = []
+
+    while (!this.check(TokenType.RightBrace) && !this.isAtEnd()) {
+      statements.push(this.declaration())
+    }
+
+    this.consume(TokenType.RightBrace, "Expect '}' after block.")
+    return statements
+  }
+
+  private assignment(): Expr {
+    const expr = this.equality()
+
+    if (this.match(TokenType.Equal)) {
+      const equals = this.previous()
+      const value = this.assignment()
+
+      if (expr instanceof VariableExpr) {
+        const name = expr.name
+        return new AssignExpr(name, value)
+      }
+      this.error(equals, 'Invalid assignment target.')
+    }
+
+    return expr
   }
 
   private equality(): Expr {
@@ -107,6 +201,9 @@ export class Parser {
 
     if (this.match(TokenType.Number, TokenType.String))
       return new LiteralExpr(this.previous().literal)
+
+    if (this.match(TokenType.Identifier))
+      return new VariableExpr(this.previous())
 
     if (this.match(TokenType.LeftParen)) {
       const expr = this.expression()

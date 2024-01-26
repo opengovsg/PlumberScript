@@ -4,6 +4,8 @@ import { Scanner } from './Scanner'
 import { errorReporter } from './ErrorReporter'
 import { Parser } from './Parser'
 import { Interpreter } from './Interpreter'
+import { Token } from './Token'
+import { Stmt } from './Stmt'
 
 const usage = 'Usage: tslox [script]'
 export class Lox {
@@ -69,14 +71,15 @@ export class Lox {
 
   private static run(source: string): void {
     const scanner = new Scanner(source)
-    const tokens = scanner.scanTokens()
+    const tokens: Array<Token> = scanner.scanTokens()
+
     const parser = new Parser(tokens)
-    const expression = parser.parse()
+    const statements: Array<Stmt> = parser.parse()
 
     // Stop if there was a syntax error
     if (errorReporter.hadSyntaxError) return
 
-    this.interpreter.interpret(expression)
+    this.interpreter.interpret(statements)
   }
 }
 

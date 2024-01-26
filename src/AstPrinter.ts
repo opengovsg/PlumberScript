@@ -2,29 +2,32 @@ import {
   // AssignExpr,
   BinaryExpr,
   ExprVisitor,
-  // BlockStmt,
   // CallExpr,
-  // ClassStmt,
   Expr,
-  // ExpressionStmt,
-  // FunctionStmt,
   // GetExpr,
   GroupingExpr,
-  // IfStmt,
   LiteralExpr,
   // LogicalExpr,
-  // PrintStmt,
-  // ReturnStmt,
   // SetExpr,
-  // Stmt,
   // SuperExpr,
   // SyntaxVisitor,
   // ThisExpr,
   UnaryExpr,
-  // VarStmt,
   // VariableExpr,
-  // WhileStmt,
 } from './Expr'
+
+import {
+  ExpressionStmt,
+  PrintStmt,
+  // BlockStmt,
+  // ClassStmt,
+  // IfStmt,
+  // FunctionStmt,
+  // Stmt,
+  // ReturnStmt,
+  // VarStmt,
+  // WhileStmt,
+} from './Stmt'
 
 // export class AstPrinter implements SyntaxVisitor<string, string> {
 export class AstPrinter implements ExprVisitor<string> {
@@ -108,13 +111,13 @@ export class AstPrinter implements ExprVisitor<string> {
   //   return this.parenthesize(`get ${expr.method.lexeme} (super)`)
   // }
 
-  // visitPrintStmt(stmt: PrintStmt): string {
-  //   return this.parenthesize('print', stmt.expression)
-  // }
+  visitPrintStmt(stmt: PrintStmt): string {
+    return this.parenthesize('print', stmt.expression)
+  }
 
-  // visitExpressionStmt(stmt: ExpressionStmt): string {
-  //   return this.parenthesize('expression', stmt.expression)
-  // }
+  visitExpressionStmt(stmt: ExpressionStmt): string {
+    return this.parenthesize('expression', stmt.expression)
+  }
 
   // visitVarStmt(stmt: VarStmt): string {
   //   const name = new VariableExpr(stmt.name)

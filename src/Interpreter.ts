@@ -1,22 +1,36 @@
+import { Environment } from './Environment'
 import { errorReporter } from './ErrorReporter'
 import {
+  AssignExpr,
   BinaryExpr,
   Expr,
   ExprVisitor,
   GroupingExpr,
   LiteralExpr,
   UnaryExpr,
+  VariableExpr,
 } from './Expr'
+import {
+  BlockStmt,
+  ExpressionStmt,
+  PrintStmt,
+  Stmt,
+  StmtVisitor,
+  VarStmt,
+} from './Stmt'
 import { Token } from './Token'
 import { TokenType } from './TokenType'
 import { RuntimeError } from './error'
 import { LoxObject } from './types'
 
-export class Interpreter implements ExprVisitor<LoxObject> {
-  interpret(expression: Expr) {
+export class Interpreter implements ExprVisitor<LoxObject>, StmtVisitor<void> {
+  private environment: Environment = new Environment()
+
+  interpret(statements: Array<Stmt>) {
     try {
-      const value = this.evaluate(expression)
-      console.log(this.stringify(value))
+      for (const statement of statements) {
+        this.execute(statement)
+      }
     } catch (error) {
       errorReporter.report(error as Error)
     }
@@ -39,6 +53,10 @@ export class Interpreter implements ExprVisitor<LoxObject> {
 
     // Unreachable
     return null
+  }
+
+  visitVariableExpr(expr: VariableExpr): LoxObject {
+    return this.environment.get(expr.name)
   }
 
   checkNumberOperand(operator: Token, operand: LoxObject): void {
@@ -83,6 +101,51 @@ export class Interpreter implements ExprVisitor<LoxObject> {
 
   private evaluate(expr: Expr): LoxObject {
     return expr.accept(this)
+  }
+
+  private execute(stmt: Stmt) {
+    stmt.accept(this)
+  }
+
+  executeBlock(statements: Array<Stmt>, environment: Environment) {
+    const previous = this.environment
+    try {
+      this.environment = environment
+
+      for (const statement of statements) {
+        this.execute(statement)
+      }
+    } finally {
+      this.environment = previous
+    }
+  }
+
+  visitBlockStmt(stmt: BlockStmt): void {
+    this.executeBlock(stmt.statements, new Environment(this.environment))
+  }
+
+  visitExpressionStmt(stmt: ExpressionStmt): void {
+    this.evaluate(stmt.expression)
+  }
+
+  visitPrintStmt(stmt: PrintStmt): void {
+    const value = this.evaluate(stmt.expression)
+    console.log(this.stringify(value))
+  }
+
+  visitVarStmt(stmt: VarStmt): void {
+    let value: LoxObject = null
+    if (stmt.initializer !== null) {
+      value = this.evaluate(stmt.initializer)
+    }
+
+    this.environment.define(stmt.name.lexeme, value)
+  }
+
+  visitAssignExpr(expr: AssignExpr): LoxObject {
+    const value = this.evaluate(expr.value)
+    this.environment.assign(expr.name, value)
+    return value
   }
 
   visitBinaryExpr(expr: BinaryExpr): LoxObject {
