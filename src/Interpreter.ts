@@ -19,6 +19,7 @@ import {
   Stmt,
   StmtVisitor,
   VarStmt,
+  WhileStmt,
 } from './Stmt'
 import { Token } from './Token'
 import { TokenType } from './TokenType'
@@ -162,6 +163,12 @@ export class Interpreter implements ExprVisitor<LoxObject>, StmtVisitor<void> {
     }
 
     this.environment.define(stmt.name.lexeme, value)
+  }
+
+  visitWhileStmt(stmt: WhileStmt): void {
+    while (this.isTruthy(this.evaluate(stmt.condition))) {
+      this.execute(stmt.body)
+    }
   }
 
   visitAssignExpr(expr: AssignExpr): LoxObject {

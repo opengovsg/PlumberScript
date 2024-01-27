@@ -11,7 +11,7 @@ export interface StmtVisitor<R> {
   visitVarStmt(stmt: VarStmt): R
   visitBlockStmt(stmt: BlockStmt): R
   visitIfStmt(stmt: IfStmt): R
-  //   visitWhileStmt(stmt: WhileStmt): R
+  visitWhileStmt(stmt: WhileStmt): R
   //   visitFunctionStmt(stmt: FunctionStmt): R
   //   visitReturnStmt(stmt: ReturnStmt): R
   //   visitClassStmt(stmt: ClassStmt): R
@@ -83,19 +83,19 @@ export class IfStmt implements Stmt {
   }
 }
 
-// export class WhileStmt implements Stmt {
-//   condition: Expr
-//   body: Stmt
+export class WhileStmt implements Stmt {
+  condition: Expr
+  body: Stmt
 
-//   constructor(condition: Expr, body: Stmt) {
-//     this.condition = condition
-//     this.body = body
-//   }
+  constructor(condition: Expr, body: Stmt) {
+    this.condition = condition
+    this.body = body
+  }
 
-//   accept<R>(visitor: StmtVisitor<R>): R {
-//     return visitor.visitWhileStmt(this)
-//   }
-// }
+  accept<R>(visitor: StmtVisitor<R>): R {
+    return visitor.visitWhileStmt(this)
+  }
+}
 
 // export class FunctionStmt implements Stmt {
 //   name: Token

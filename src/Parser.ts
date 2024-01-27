@@ -15,6 +15,7 @@ import {
   PrintStmt,
   Stmt,
   VarStmt,
+  WhileStmt,
 } from './Stmt'
 import { Token } from './Token'
 import { TokenType } from './TokenType'
@@ -39,10 +40,12 @@ import { SyntaxError } from './error'
  * - program -> declaration* EOF ;
  * - declaration -> varDecl | statement ;
  * - varDecl -> "var" IDENTIFIER ( "=" expression )? ";" ;
- * - statement -> block | exprStmt | ifStmt | printStmt ;
- * - ifStmt -> "if" "(" expression ")" statement ( "else" statement )? ;
+ * - statement -> block | exprStmt | forStmt | ifStmt | whileStmt | printStmt ;
  * - block -> "{" declaration* "}" ;
  * - exprStmt -> expression ";" ;
+ * - forStmt -> "for" "(" ( varDecl | exprStmt | ";") expression? ";" expression? ")" statement;
+ * - ifStmt -> "if" "(" expression ")" statement ( "else" statement )? ;
+ * - whileStmt -> "while" "(" expression ")" statement ;
  * - printStmt -> "print" expression ";" ;
  * - expression -> assignment ;
  * - assignment -> IDENTIFIER "=" assignment | logic_or ;
@@ -86,10 +89,52 @@ export class Parser {
   }
 
   private statement(): Stmt {
+    if (this.match(TokenType.For)) return this.forStatement()
     if (this.match(TokenType.If)) return this.ifStatement()
     if (this.match(TokenType.Print)) return this.printStatement()
+    if (this.match(TokenType.While)) return this.whileStatement()
     if (this.match(TokenType.LeftBrace)) return new BlockStmt(this.block())
     return this.expressionStatement()
+  }
+
+  private forStatement(): Stmt {
+    this.consume(TokenType.LeftParen, "Expect '(' after 'for'.")
+
+    let initializer
+    if (this.match(TokenType.Semicolon)) {
+      initializer = null
+    } else if (this.match(TokenType.Var)) {
+      initializer = this.varDeclaration()
+    } else {
+      initializer = this.expressionStatement()
+    }
+
+    let condition = null
+    if (!this.check(TokenType.Semicolon)) {
+      condition = this.expression()
+    }
+    this.consume(TokenType.Semicolon, "Expect ';' after loop condition")
+
+    let increment = null
+    if (!this.check(TokenType.RightParen)) {
+      increment = this.expression()
+    }
+    this.consume(TokenType.RightParen, "Expect ')' after for clauses.")
+
+    let body = this.statement()
+
+    if (increment !== null) {
+      body = new BlockStmt([body, new ExpressionStmt(increment)])
+    }
+
+    if (condition === null) condition = new LiteralExpr(true)
+    body = new WhileStmt(condition, body)
+
+    if (initializer !== null) {
+      body = new BlockStmt([initializer, body])
+    }
+
+    return body
   }
 
   private ifStatement(): Stmt {
@@ -126,6 +171,15 @@ export class Parser {
 
     this.consume(TokenType.Semicolon, "Expect ';' after variable declaration.")
     return new VarStmt(name, initializer)
+  }
+
+  private whileStatement(): Stmt {
+    this.consume(TokenType.LeftParen, "Expect '(' after 'while'")
+    const condition = this.expression()
+    this.consume(TokenType.RightParen, "Expect ')' after condition")
+    const body = this.statement()
+
+    return new WhileStmt(condition, body)
   }
 
   private expressionStatement(): Stmt {
