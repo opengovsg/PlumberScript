@@ -7,12 +7,14 @@ import {
   ExprVisitor,
   GroupingExpr,
   LiteralExpr,
+  LogicalExpr,
   UnaryExpr,
   VariableExpr,
 } from './Expr'
 import {
   BlockStmt,
   ExpressionStmt,
+  IfStmt,
   PrintStmt,
   Stmt,
   StmtVisitor,
@@ -38,6 +40,18 @@ export class Interpreter implements ExprVisitor<LoxObject>, StmtVisitor<void> {
 
   visitLiteralExpr(expr: LiteralExpr): LoxObject {
     return expr.value
+  }
+
+  visitLogicalExpr(expr: LogicalExpr): LoxObject {
+    const left = this.evaluate(expr.left)
+
+    if (expr.operator.type === TokenType.Or) {
+      if (this.isTruthy(left)) return left
+    } else {
+      if (!this.isTruthy(left)) return left
+    }
+
+    return this.evaluate(expr.right)
   }
 
   visitUnaryExpr(expr: UnaryExpr): LoxObject {
@@ -126,6 +140,14 @@ export class Interpreter implements ExprVisitor<LoxObject>, StmtVisitor<void> {
 
   visitExpressionStmt(stmt: ExpressionStmt): void {
     this.evaluate(stmt.expression)
+  }
+
+  visitIfStmt(stmt: IfStmt): void {
+    if (this.isTruthy(this.evaluate(stmt.condition))) {
+      this.execute(stmt.thenBranch)
+    } else if (stmt.elseBranch !== null) {
+      this.execute(stmt.elseBranch)
+    }
   }
 
   visitPrintStmt(stmt: PrintStmt): void {

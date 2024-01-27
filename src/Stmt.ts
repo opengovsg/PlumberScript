@@ -10,7 +10,7 @@ export interface StmtVisitor<R> {
   visitPrintStmt(stmt: PrintStmt): R
   visitVarStmt(stmt: VarStmt): R
   visitBlockStmt(stmt: BlockStmt): R
-  //   visitIfStmt(stmt: IfStmt): R
+  visitIfStmt(stmt: IfStmt): R
   //   visitWhileStmt(stmt: WhileStmt): R
   //   visitFunctionStmt(stmt: FunctionStmt): R
   //   visitReturnStmt(stmt: ReturnStmt): R
@@ -67,21 +67,21 @@ export class BlockStmt implements Stmt {
   }
 }
 
-// export class IfStmt implements Stmt {
-//   condition: Expr
-//   thenBranch: Stmt
-//   elseBranch: Stmt | null
+export class IfStmt implements Stmt {
+  condition: Expr
+  thenBranch: Stmt
+  elseBranch: Stmt | null
 
-//   constructor(condition: Expr, thenBranch: Stmt, elseBranch: Stmt | null) {
-//     this.condition = condition
-//     this.thenBranch = thenBranch
-//     this.elseBranch = elseBranch
-//   }
+  constructor(condition: Expr, thenBranch: Stmt, elseBranch: Stmt | null) {
+    this.condition = condition
+    this.thenBranch = thenBranch
+    this.elseBranch = elseBranch
+  }
 
-//   accept<R>(visitor: StmtVisitor<R>): R {
-//     return visitor.visitIfStmt(this)
-//   }
-// }
+  accept<R>(visitor: StmtVisitor<R>): R {
+    return visitor.visitIfStmt(this)
+  }
+}
 
 // export class WhileStmt implements Stmt {
 //   condition: Expr

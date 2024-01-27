@@ -4,10 +4,18 @@ import {
   Expr,
   GroupingExpr,
   LiteralExpr,
+  LogicalExpr,
   UnaryExpr,
   VariableExpr,
 } from './Expr'
-import { BlockStmt, ExpressionStmt, PrintStmt, Stmt, VarStmt } from './Stmt'
+import {
+  BlockStmt,
+  ExpressionStmt,
+  IfStmt,
+  PrintStmt,
+  Stmt,
+  VarStmt,
+} from './Stmt'
 import { Token } from './Token'
 import { TokenType } from './TokenType'
 import { errorReporter } from './ErrorReporter'
@@ -31,12 +39,15 @@ import { SyntaxError } from './error'
  * - program -> declaration* EOF ;
  * - declaration -> varDecl | statement ;
  * - varDecl -> "var" IDENTIFIER ( "=" expression )? ";" ;
- * - statement -> exprStmt | printStmt | block ;
+ * - statement -> block | exprStmt | ifStmt | printStmt ;
+ * - ifStmt -> "if" "(" expression ")" statement ( "else" statement )? ;
  * - block -> "{" declaration* "}" ;
  * - exprStmt -> expression ";" ;
  * - printStmt -> "print" expression ";" ;
  * - expression -> assignment ;
- * - assignment -> IDENTIFER "=" assignment | equality ;
+ * - assignment -> IDENTIFIER "=" assignment | logic_or ;
+ * - logic_or -> logic_and ( "or" logic_and )* ;
+ * - logic_and -> equality ( "and" equality )* ;
  * - equality -> comparison ( ("!="|"==") comparison )* ;
  * - term -> factor ( ("-"|"+") factor )* ;
  * - factor -> unary ( ("/"|"*") unary )* | primary ;
@@ -75,9 +86,25 @@ export class Parser {
   }
 
   private statement(): Stmt {
+    if (this.match(TokenType.If)) return this.ifStatement()
     if (this.match(TokenType.Print)) return this.printStatement()
     if (this.match(TokenType.LeftBrace)) return new BlockStmt(this.block())
     return this.expressionStatement()
+  }
+
+  private ifStatement(): Stmt {
+    this.consume(TokenType.LeftParen, "Expect '(' after 'if'.")
+    const condition = this.expression()
+    this.consume(TokenType.RightParen, "Expect ')' after if condition.")
+
+    const thenBranch = this.statement()
+    let elseBranch: Stmt | null = null
+
+    if (this.match(TokenType.Else)) {
+      elseBranch = this.statement()
+    }
+
+    return new IfStmt(condition, thenBranch, elseBranch)
   }
 
   private printStatement(): Stmt {
@@ -119,7 +146,7 @@ export class Parser {
   }
 
   private assignment(): Expr {
-    const expr = this.equality()
+    const expr = this.or()
 
     if (this.match(TokenType.Equal)) {
       const equals = this.previous()
@@ -130,6 +157,30 @@ export class Parser {
         return new AssignExpr(name, value)
       }
       this.error(equals, 'Invalid assignment target.')
+    }
+
+    return expr
+  }
+
+  private or(): Expr {
+    let expr = this.and()
+
+    while (this.match(TokenType.Or)) {
+      const operator = this.previous()
+      const right = this.and()
+      expr = new LogicalExpr(expr, operator, right)
+    }
+
+    return expr
+  }
+
+  private and(): Expr {
+    let expr = this.equality()
+
+    while (this.match(TokenType.And)) {
+      const operator = this.previous()
+      const right = this.equality()
+      expr = new LogicalExpr(expr, operator, right)
     }
 
     return expr
