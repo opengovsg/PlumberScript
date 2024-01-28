@@ -3,6 +3,7 @@ import { errorReporter } from './ErrorReporter'
 import {
   AssignExpr,
   BinaryExpr,
+  CallExpr,
   Expr,
   ExprVisitor,
   GroupingExpr,
@@ -24,7 +25,7 @@ import {
 import { Token } from './Token'
 import { TokenType } from './TokenType'
 import { RuntimeError } from './error'
-import { LoxObject } from './types'
+import { LoxObject, LoxCallable } from './types'
 
 export class Interpreter implements ExprVisitor<LoxObject>, StmtVisitor<void> {
   private environment: Environment = new Environment()
@@ -220,5 +221,27 @@ export class Interpreter implements ExprVisitor<LoxObject>, StmtVisitor<void> {
 
     //Unreachable
     return null
+  }
+
+  visitCallExpr(expr: CallExpr): LoxObject {
+    const callee = this.evaluate(expr.callee)
+    const args: Array<LoxObject> = []
+
+    for (const arg of expr.args) {
+      args.push(this.evaluate(arg))
+    }
+
+    if (!(callee instanceof LoxCallable)) {
+      throw new RuntimeError('Can only call functions and classes', expr.paren)
+    }
+
+    if (args.length !== callee.arity()) {
+      throw new RuntimeError(
+        `Expected ${callee.arity()} arguments but got ${args.length}.`,
+        expr.paren,
+      )
+    }
+
+    return callee.call(this, args)
   }
 }

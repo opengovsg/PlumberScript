@@ -1,6 +1,7 @@
 import {
   AssignExpr,
   BinaryExpr,
+  CallExpr,
   Expr,
   GroupingExpr,
   LiteralExpr,
@@ -54,6 +55,9 @@ import { SyntaxError } from './error'
  * - equality -> comparison ( ("!="|"==") comparison )* ;
  * - term -> factor ( ("-"|"+") factor )* ;
  * - factor -> unary ( ("/"|"*") unary )* | primary ;
+ * - unary -> ( "!" | "-" ) unary | call ;
+ * - call -> primary ( "(" arguments? ")" )* ;
+ * - arguments -> expression ( "," expression )* ;
  * - primary -> NUMBER | STRING | "true" | "false" | "nil" | "(" expression ")" | IDENTIFIER ;
  */
 
@@ -296,7 +300,40 @@ export class Parser {
       const right: Expr = this.unary()
       return new UnaryExpr(operator, right)
     }
-    return this.primary()
+    return this.call()
+  }
+
+  private finishCall(callee: Expr): Expr {
+    const args: Array<Expr> = []
+    if (!this.check(TokenType.RightParen)) {
+      do {
+        if (args.length >= 255) {
+          this.error(this.peek(), "Can't have more than 255 arguments.")
+        }
+        args.push(this.expression())
+      } while (this.match(TokenType.Comma))
+    }
+
+    const paren = this.consume(
+      TokenType.RightParen,
+      "Expect ')' after arguments.",
+    )
+
+    return new CallExpr(callee, paren, args)
+  }
+
+  private call(): Expr {
+    let expr = this.primary()
+
+    // eslint-disable-next-line no-constant-condition
+    while (true) {
+      if (this.match(TokenType.LeftParen)) {
+        expr = this.finishCall(expr)
+      } else {
+        break
+      }
+    }
+    return expr
   }
 
   private primary(): Expr {

@@ -13,7 +13,7 @@ export interface ExprVisitor<R> {
   visitVariableExpr(expr: VariableExpr): R
   visitAssignExpr(expr: AssignExpr): R
   visitLogicalExpr(expr: LogicalExpr): R
-  // visitCallExpr(expr: CallExpr): R
+  visitCallExpr(expr: CallExpr): R
   // visitGetExpr(expr: GetExpr): R
   // visitSetExpr(expr: SetExpr): R
   // visitThisExpr(expr: ThisExpr): R
@@ -116,21 +116,21 @@ export class LogicalExpr implements Expr {
   }
 }
 
-// export class CallExpr implements Expr {
-//   callee: Expr
-//   paren: Token // Closing parenthesis
-//   args: Expr[]
+export class CallExpr implements Expr {
+  callee: Expr
+  paren: Token // Closing parenthesis, location used for error reporting
+  args: Expr[]
 
-//   constructor(callee: Expr, paren: Token, args: Expr[]) {
-//     this.callee = callee
-//     this.paren = paren
-//     this.args = args
-//   }
+  constructor(callee: Expr, paren: Token, args: Expr[]) {
+    this.callee = callee
+    this.paren = paren
+    this.args = args
+  }
 
-//   accept<R>(visitor: ExprVisitor<R>): R {
-//     return visitor.visitCallExpr(this)
-//   }
-// }
+  accept<R>(visitor: ExprVisitor<R>): R {
+    return visitor.visitCallExpr(this)
+  }
+}
 
 // export class GetExpr implements Expr {
 //   object: Expr
