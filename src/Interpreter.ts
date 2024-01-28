@@ -25,10 +25,16 @@ import {
 import { Token } from './Token'
 import { TokenType } from './TokenType'
 import { RuntimeError } from './error'
+import { LoxClockFunction } from './lib/clock'
 import { LoxObject, LoxCallable } from './types'
 
 export class Interpreter implements ExprVisitor<LoxObject>, StmtVisitor<void> {
-  private environment: Environment = new Environment()
+  globals = new Environment()
+  private environment = this.globals
+
+  constructor() {
+    this.globals.define('clock', new LoxClockFunction()) // native function clock()
+  }
 
   interpret(statements: Array<Stmt>) {
     try {
