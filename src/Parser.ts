@@ -12,6 +12,7 @@ import {
 import {
   BlockStmt,
   ExpressionStmt,
+  FunctionStmt,
   IfStmt,
   PrintStmt,
   Stmt,
@@ -39,7 +40,10 @@ import { SyntaxError } from './error'
  * Language grammar (in pseudo-Backus-Naur Form):
  *
  * - program -> declaration* EOF ;
- * - declaration -> varDecl | statement ;
+ * - declaration -> funDecl | varDecl | statement ;
+ * - funDecl -> "fun" function ;
+ * - function -> IDENTIFIER "(" parameters? ")" block ;
+ * - parameters -> IDENTIFIER ( "," IDENTIFIER )* ;
  * - varDecl -> "var" IDENTIFIER ( "=" expression )? ";" ;
  * - statement -> block | exprStmt | forStmt | ifStmt | whileStmt | printStmt ;
  * - block -> "{" declaration* "}" ;
@@ -88,6 +92,7 @@ export class Parser {
   }
 
   private declaration(): Stmt {
+    if (this.match(TokenType.Fun)) return this.funDeclaration('function')
     if (this.match(TokenType.Var)) return this.varDeclaration()
     return this.statement()
   }
@@ -190,6 +195,29 @@ export class Parser {
     const expr: Expr = this.expression()
     this.consume(TokenType.Semicolon, "Expect ';' after value.")
     return new ExpressionStmt(expr)
+  }
+
+  private funDeclaration(kind: string): FunctionStmt {
+    const name = this.consume(TokenType.Identifier, `Expect ${kind} name.`)
+    this.consume(TokenType.LeftParen, `Expect '(' after ${kind} name.`)
+    const parameters: Array<Token> = []
+
+    if (!this.check(TokenType.RightParen)) {
+      do {
+        if (parameters.length >= 255) {
+          this.error(this.peek(), "Can't have more than 255 parameters.")
+        }
+        parameters.push(
+          this.consume(TokenType.Identifier, 'Expect parameter name.'),
+        )
+      } while (this.match(TokenType.Comma))
+    }
+    this.consume(TokenType.RightParen, "Expect ')' after parameters.")
+    this.consume(TokenType.LeftBrace, `Expect '{' before ${kind} body.`)
+
+    const body = this.block()
+
+    return new FunctionStmt(name, parameters, body)
   }
 
   private block(): Array<Stmt> {
