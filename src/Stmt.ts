@@ -13,7 +13,7 @@ export interface StmtVisitor<R> {
   visitIfStmt(stmt: IfStmt): R
   visitWhileStmt(stmt: WhileStmt): R
   visitFunctionStmt(stmt: FunctionStmt): R
-  //   visitReturnStmt(stmt: ReturnStmt): R
+  visitReturnStmt(stmt: ReturnStmt): R
   //   visitClassStmt(stmt: ClassStmt): R
 }
 
@@ -113,19 +113,19 @@ export class FunctionStmt implements Stmt {
   }
 }
 
-// export class ReturnStmt implements Stmt {
-//   keyword: Token
-//   value: Expr | null
+export class ReturnStmt implements Stmt {
+  keyword: Token
+  value: Expr | null
 
-//   constructor(keyword: Token, value: Expr | null) {
-//     this.keyword = keyword
-//     this.value = value
-//   }
+  constructor(keyword: Token, value: Expr | null) {
+    this.keyword = keyword
+    this.value = value
+  }
 
-//   accept<R>(visitor: StmtVisitor<R>): R {
-//     return visitor.visitReturnStmt(this)
-//   }
-// }
+  accept<R>(visitor: StmtVisitor<R>): R {
+    return visitor.visitReturnStmt(this)
+  }
+}
 
 // export class ClassStmt implements Stmt {
 //   name: Token

@@ -29,9 +29,22 @@ export class LoxFunction extends LoxCallable {
     for (const [i, param] of this.declaration.params.entries()) {
       environment.define(param.lexeme, args[i])
     }
-
-    interpreter.executeBlock(this.declaration.body, environment)
+    try {
+      interpreter.executeBlock(this.declaration.body, environment)
+    } catch (thrown) {
+      if (thrown instanceof Return) {
+        return thrown.value
+      } else throw thrown
+    }
     return null
+  }
+}
+
+export class Return {
+  readonly value: LoxObject
+
+  constructor(value: LoxObject) {
+    this.value = value
   }
 }
 

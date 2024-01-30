@@ -18,6 +18,7 @@ import {
   FunctionStmt,
   IfStmt,
   PrintStmt,
+  ReturnStmt,
   Stmt,
   StmtVisitor,
   VarStmt,
@@ -27,7 +28,7 @@ import { Token } from './Token'
 import { TokenType } from './TokenType'
 import { RuntimeError } from './error'
 import { LoxClockFunction } from './lib/clock'
-import { LoxObject, LoxCallable, LoxFunction } from './types'
+import { LoxObject, LoxCallable, LoxFunction, Return } from './types'
 
 export class Interpreter implements ExprVisitor<LoxObject>, StmtVisitor<void> {
   globals = new Environment()
@@ -167,6 +168,13 @@ export class Interpreter implements ExprVisitor<LoxObject>, StmtVisitor<void> {
   visitPrintStmt(stmt: PrintStmt): void {
     const value = this.evaluate(stmt.expression)
     console.log(this.stringify(value))
+  }
+
+  visitReturnStmt(stmt: ReturnStmt): void {
+    let value: LoxObject = null
+    if (stmt.value !== null) value = this.evaluate(stmt.value)
+
+    throw new Return(value)
   }
 
   visitVarStmt(stmt: VarStmt): void {

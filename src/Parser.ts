@@ -15,6 +15,7 @@ import {
   FunctionStmt,
   IfStmt,
   PrintStmt,
+  ReturnStmt,
   Stmt,
   VarStmt,
   WhileStmt,
@@ -45,13 +46,14 @@ import { SyntaxError } from './error'
  * - function -> IDENTIFIER "(" parameters? ")" block ;
  * - parameters -> IDENTIFIER ( "," IDENTIFIER )* ;
  * - varDecl -> "var" IDENTIFIER ( "=" expression )? ";" ;
- * - statement -> block | exprStmt | forStmt | ifStmt | whileStmt | printStmt ;
+ * - statement -> block | exprStmt | forStmt | ifStmt | whileStmt | printStmt | returnStmt ;
  * - block -> "{" declaration* "}" ;
  * - exprStmt -> expression ";" ;
  * - forStmt -> "for" "(" ( varDecl | exprStmt | ";") expression? ";" expression? ")" statement;
  * - ifStmt -> "if" "(" expression ")" statement ( "else" statement )? ;
  * - whileStmt -> "while" "(" expression ")" statement ;
  * - printStmt -> "print" expression ";" ;
+ * - returnStmt -> "return" expression? ";" ;
  * - expression -> assignment ;
  * - assignment -> IDENTIFIER "=" assignment | logic_or ;
  * - logic_or -> logic_and ( "or" logic_and )* ;
@@ -101,6 +103,7 @@ export class Parser {
     if (this.match(TokenType.For)) return this.forStatement()
     if (this.match(TokenType.If)) return this.ifStatement()
     if (this.match(TokenType.Print)) return this.printStatement()
+    if (this.match(TokenType.Return)) return this.returnStatement()
     if (this.match(TokenType.While)) return this.whileStatement()
     if (this.match(TokenType.LeftBrace)) return new BlockStmt(this.block())
     return this.expressionStatement()
@@ -165,6 +168,17 @@ export class Parser {
     const value: Expr = this.expression()
     this.consume(TokenType.Semicolon, "Expect ';' after value.")
     return new PrintStmt(value)
+  }
+
+  private returnStatement(): Stmt {
+    const keyword = this.previous()
+    let value: Expr | null = null
+    if (!this.check(TokenType.Semicolon)) {
+      value = this.expression()
+    }
+
+    this.consume(TokenType.Semicolon, "Expect ';' after return value.")
+    return new ReturnStmt(keyword, value)
   }
 
   private varDeclaration(): Stmt {
