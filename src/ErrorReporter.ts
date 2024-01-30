@@ -1,9 +1,10 @@
-import { SyntaxError, RuntimeError, CliError } from './error'
+import { SyntaxError, RuntimeError, CliError, ResolvingError } from './error'
 
 class ErrorReporter {
   hadCliError = false
   hadSyntaxError = false
   hadRuntimeError = false
+  hadResolvingError = false
 
   report(error: Error): void {
     let header = ''
@@ -23,6 +24,7 @@ class ErrorReporter {
 
     if (error instanceof RuntimeError) this.hadRuntimeError = true
     else if (error instanceof SyntaxError) this.hadSyntaxError = true
+    else if (error instanceof ResolvingError) this.hadResolvingError = true
     else this.hadCliError = true
   }
 }

@@ -28,6 +28,11 @@ import { ResolvingError } from './error'
 
 type Scope = Record<string, boolean>
 
+enum FunctionType {
+  None = 'None',
+  Function = 'Function',
+}
+
 class Stack extends Array<Scope> {
   isEmpty(): boolean {
     return this.length < 1
@@ -40,6 +45,7 @@ class Stack extends Array<Scope> {
 export class Resolver implements ExprVisitor<void>, StmtVisitor<void> {
   private readonly interpreter: Interpreter
   private readonly scopes: Stack = new Stack()
+  private currentFunction = FunctionType.None
 
   constructor(interpreter: Interpreter) {
     this.interpreter = interpreter
@@ -59,7 +65,7 @@ export class Resolver implements ExprVisitor<void>, StmtVisitor<void> {
     this.declare(stmt.name)
     this.define(stmt.name)
 
-    this.resolveFunction(stmt)
+    this.resolveFunction(stmt, FunctionType.Function)
   }
 
   visitIfStmt(stmt: IfStmt): void {
@@ -73,6 +79,13 @@ export class Resolver implements ExprVisitor<void>, StmtVisitor<void> {
   }
 
   visitReturnStmt(stmt: ReturnStmt): void {
+    if (this.currentFunction === FunctionType.None)
+      errorReporter.report(
+        new ResolvingError(
+          "Can't return from top-level code",
+          stmt.keyword.line,
+        ),
+      )
     if (stmt.value !== null) this.resolve(stmt.value)
   }
 
@@ -148,7 +161,10 @@ export class Resolver implements ExprVisitor<void>, StmtVisitor<void> {
     } else target.accept(this)
   }
 
-  private resolveFunction(func: FunctionStmt) {
+  private resolveFunction(func: FunctionStmt, type: FunctionType) {
+    const enclosingFunction = this.currentFunction
+    this.currentFunction = type
+
     this.beginScope()
     for (const param of func.params) {
       this.declare(param)
@@ -156,6 +172,7 @@ export class Resolver implements ExprVisitor<void>, StmtVisitor<void> {
     }
     this.resolve(func.body)
     this.endScope()
+    this.currentFunction = enclosingFunction
   }
 
   private beginScope(): void {
@@ -170,6 +187,16 @@ export class Resolver implements ExprVisitor<void>, StmtVisitor<void> {
     if (this.scopes.isEmpty()) return
 
     const scope = this.scopes.peek()
+
+    if (name.lexeme in scope) {
+      errorReporter.report(
+        new ResolvingError(
+          'Already variable with this name in scope',
+          name.line,
+        ),
+      )
+    }
+
     scope[name.lexeme] = false
   }
 

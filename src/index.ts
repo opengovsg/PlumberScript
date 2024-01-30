@@ -83,6 +83,9 @@ export class Lox {
     const resolver = new Resolver(this.interpreter)
     resolver.resolve(statements)
 
+    // Stop if there was a resolution error
+    if (errorReporter.hadResolvingError) return
+
     this.interpreter.interpret(statements)
   }
 }
