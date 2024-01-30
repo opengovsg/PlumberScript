@@ -9,9 +9,11 @@ export abstract class LoxCallable {
 
 export class LoxFunction extends LoxCallable {
   private readonly declaration: FunctionStmt
+  private readonly closure: Environment
 
-  constructor(declaration: FunctionStmt) {
+  constructor(declaration: FunctionStmt, closure: Environment) {
     super()
+    this.closure = closure
     this.declaration = declaration
   }
 
@@ -24,7 +26,7 @@ export class LoxFunction extends LoxCallable {
   }
 
   call(interpreter: Interpreter, args: Array<LoxObject>): LoxObject {
-    const environment = new Environment(interpreter.globals)
+    const environment = new Environment(this.closure)
 
     for (const [i, param] of this.declaration.params.entries()) {
       environment.define(param.lexeme, args[i])
