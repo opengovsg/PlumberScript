@@ -15,6 +15,34 @@ export class Environment {
     this.values[name] = value
   }
 
+  ancestor(distance: number): Environment | null {
+    if (distance === 0) return this
+
+    let environment = this.enclosing
+    for (let i = 1; i < distance; i++) {
+      environment = environment?.enclosing ?? null
+    }
+    return environment
+  }
+
+  getAt(distance: number, name: Token): LoxObject {
+    const environment = this.ancestor(distance)
+
+    if (environment === null)
+      throw new RuntimeError(`Undefined variable '${name.lexeme}'`, name)
+
+    return environment.get(name)
+  }
+
+  assignAt(distance: number, name: Token, value: LoxObject) {
+    const environment = this.ancestor(distance)
+
+    if (environment === null)
+      throw new RuntimeError(`Undefined variable '${name.lexeme}'`, name)
+
+    environment.assign(name, value)
+  }
+
   assign(name: Token, value: LoxObject): void {
     if (name.lexeme in this.values) {
       this.values[name.lexeme] = value

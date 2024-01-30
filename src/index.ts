@@ -6,6 +6,7 @@ import { Parser } from './Parser'
 import { Interpreter } from './Interpreter'
 import { Token } from './Token'
 import { Stmt } from './Stmt'
+import { Resolver } from './Resolver'
 
 const usage = 'Usage: tslox [script]'
 export class Lox {
@@ -78,6 +79,9 @@ export class Lox {
 
     // Stop if there was a syntax error
     if (errorReporter.hadSyntaxError) return
+
+    const resolver = new Resolver(this.interpreter)
+    resolver.resolve(statements)
 
     this.interpreter.interpret(statements)
   }
