@@ -6,13 +6,16 @@ import {
   CallExpr,
   Expr,
   ExprVisitor,
+  GetExpr,
   GroupingExpr,
   LiteralExpr,
   LogicalExpr,
+  SetExpr,
   UnaryExpr,
   VariableExpr,
 } from './Expr'
 import { LoxClass } from './LoxClass'
+import { LoxInstance } from './LoxInstance'
 import {
   BlockStmt,
   ClassStmt,
@@ -65,6 +68,19 @@ export class Interpreter implements ExprVisitor<LoxObject>, StmtVisitor<void> {
     }
 
     return this.evaluate(expr.right)
+  }
+
+  visitSetExpr(expr: SetExpr): LoxObject {
+    const object = this.evaluate(expr.object)
+
+    if (!(object instanceof LoxInstance)) {
+      throw new RuntimeError('Only instances have fields.', expr.name)
+    }
+
+    const value = this.evaluate(expr.value)
+    object.set(expr.name, value)
+
+    return value
   }
 
   visitUnaryExpr(expr: UnaryExpr): LoxObject {
@@ -292,5 +308,14 @@ export class Interpreter implements ExprVisitor<LoxObject>, StmtVisitor<void> {
     }
 
     return callee.call(this, args)
+  }
+
+  visitGetExpr(expr: GetExpr): LoxObject {
+    const object = this.evaluate(expr.object)
+    if (object instanceof LoxInstance) {
+      return object.get(expr.name)
+    }
+
+    throw new RuntimeError('Only instances have properties.', expr.name)
   }
 }

@@ -14,8 +14,8 @@ export interface ExprVisitor<R> {
   visitAssignExpr(expr: AssignExpr): R
   visitLogicalExpr(expr: LogicalExpr): R
   visitCallExpr(expr: CallExpr): R
-  // visitGetExpr(expr: GetExpr): R
-  // visitSetExpr(expr: SetExpr): R
+  visitGetExpr(expr: GetExpr): R
+  visitSetExpr(expr: SetExpr): R
   // visitThisExpr(expr: ThisExpr): R
   // visitSuperExpr(expr: SuperExpr): R
 }
@@ -132,35 +132,35 @@ export class CallExpr implements Expr {
   }
 }
 
-// export class GetExpr implements Expr {
-//   object: Expr
-//   name: Token
+export class GetExpr implements Expr {
+  object: Expr
+  name: Token
 
-//   constructor(object: Expr, name: Token) {
-//     this.object = object
-//     this.name = name
-//   }
+  constructor(object: Expr, name: Token) {
+    this.object = object
+    this.name = name
+  }
 
-//   accept<R>(visitor: ExprVisitor<R>): R {
-//     return visitor.visitGetExpr(this)
-//   }
-// }
+  accept<R>(visitor: ExprVisitor<R>): R {
+    return visitor.visitGetExpr(this)
+  }
+}
 
-// export class SetExpr implements Expr {
-//   object: Expr
-//   name: Token
-//   value: Expr
+export class SetExpr implements Expr {
+  object: Expr
+  name: Token
+  value: Expr
 
-//   constructor(object: Expr, name: Token, value: Expr) {
-//     this.object = object
-//     this.name = name
-//     this.value = value
-//   }
+  constructor(object: Expr, name: Token, value: Expr) {
+    this.object = object
+    this.name = name
+    this.value = value
+  }
 
-//   accept<R>(visitor: ExprVisitor<R>): R {
-//     return visitor.visitSetExpr(this)
-//   }
-// }
+  accept<R>(visitor: ExprVisitor<R>): R {
+    return visitor.visitSetExpr(this)
+  }
+}
 
 // export class ThisExpr implements Expr {
 //   keyword: Token

@@ -3,9 +3,11 @@ import {
   BinaryExpr,
   CallExpr,
   Expr,
+  GetExpr,
   GroupingExpr,
   LiteralExpr,
   LogicalExpr,
+  SetExpr,
   UnaryExpr,
   VariableExpr,
 } from './Expr'
@@ -57,14 +59,14 @@ import { SyntaxError } from './error'
  * - printStmt -> "print" expression ";" ;
  * - returnStmt -> "return" expression? ";" ;
  * - expression -> assignment ;
- * - assignment -> IDENTIFIER "=" assignment | logic_or ;
+ * - assignment -> ( call "." )? IDENTIFIER "=" assignment | logic_or ;
  * - logic_or -> logic_and ( "or" logic_and )* ;
  * - logic_and -> equality ( "and" equality )* ;
  * - equality -> comparison ( ("!="|"==") comparison )* ;
  * - term -> factor ( ("-"|"+") factor )* ;
  * - factor -> unary ( ("/"|"*") unary )* | primary ;
  * - unary -> ( "!" | "-" ) unary | call ;
- * - call -> primary ( "(" arguments? ")" )* ;
+ * - call -> primary ( "(" arguments? ")" | "." IDENTIFIER)* ;
  * - arguments -> expression ( "," expression )* ;
  * - primary -> NUMBER | STRING | "true" | "false" | "nil" | "(" expression ")" | IDENTIFIER ;
  */
@@ -272,7 +274,11 @@ export class Parser {
       if (expr instanceof VariableExpr) {
         const name = expr.name
         return new AssignExpr(name, value)
+      } else if (expr instanceof GetExpr) {
+        const get = expr
+        return new SetExpr(get.object, get.name, value)
       }
+
       this.error(equals, 'Invalid assignment target.')
     }
 
@@ -388,6 +394,12 @@ export class Parser {
     while (true) {
       if (this.match(TokenType.LeftParen)) {
         expr = this.finishCall(expr)
+      } else if (this.match(TokenType.Dot)) {
+        const name = this.consume(
+          TokenType.Identifier,
+          "Expect property name after '.'.",
+        )
+        expr = new GetExpr(expr, name)
       } else {
         break
       }

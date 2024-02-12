@@ -5,8 +5,10 @@ import {
   CallExpr,
   Expr,
   ExprVisitor,
+  GetExpr,
   GroupingExpr,
   LogicalExpr,
+  SetExpr,
   UnaryExpr,
   VariableExpr,
 } from './Expr'
@@ -126,6 +128,10 @@ export class Resolver implements ExprVisitor<void>, StmtVisitor<void> {
     }
   }
 
+  visitGetExpr(expr: GetExpr): void {
+    this.resolve(expr.object)
+  }
+
   visitGroupingExpr(expr: GroupingExpr): void {
     this.resolve(expr.expression)
   }
@@ -137,6 +143,11 @@ export class Resolver implements ExprVisitor<void>, StmtVisitor<void> {
   visitLogicalExpr(expr: LogicalExpr): void {
     this.resolve(expr.right)
     this.resolve(expr.left)
+  }
+
+  visitSetExpr(expr: SetExpr): void {
+    this.resolve(expr.value)
+    this.resolve(expr.object)
   }
 
   visitUnaryExpr(expr: UnaryExpr): void {
