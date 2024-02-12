@@ -14,7 +14,7 @@ export interface StmtVisitor<R> {
   visitWhileStmt(stmt: WhileStmt): R
   visitFunctionStmt(stmt: FunctionStmt): R
   visitReturnStmt(stmt: ReturnStmt): R
-  //   visitClassStmt(stmt: ClassStmt): R
+  visitClassStmt(stmt: ClassStmt): R
 }
 
 export class ExpressionStmt implements Stmt {
@@ -127,22 +127,22 @@ export class ReturnStmt implements Stmt {
   }
 }
 
-// export class ClassStmt implements Stmt {
-//   name: Token
-//   superclass: VariableExpr | null
-//   methods: FunctionStmt[]
+export class ClassStmt implements Stmt {
+  name: Token
+  // superclass: VariableExpr | null
+  methods: FunctionStmt[]
 
-//   constructor(
-//     name: Token,
-//     superclass: VariableExpr | null,
-//     methods: FunctionStmt[],
-//   ) {
-//     this.name = name
-//     this.superclass = superclass
-//     this.methods = methods
-//   }
+  constructor(
+    name: Token,
+    // superclass: VariableExpr | null,
+    methods: FunctionStmt[],
+  ) {
+    this.name = name
+    // this.superclass = superclass
+    this.methods = methods
+  }
 
-//   accept<R>(visitor: StmtVisitor<R>): R {
-//     return visitor.visitClassStmt(this)
-//   }
-// }
+  accept<R>(visitor: StmtVisitor<R>): R {
+    return visitor.visitClassStmt(this)
+  }
+}

@@ -13,6 +13,7 @@ import {
 import { Interpreter } from './Interpreter'
 import {
   BlockStmt,
+  ClassStmt,
   ExpressionStmt,
   FunctionStmt,
   IfStmt,
@@ -55,6 +56,11 @@ export class Resolver implements ExprVisitor<void>, StmtVisitor<void> {
     this.beginScope()
     this.resolve(stmt.statements)
     this.endScope()
+  }
+
+  visitClassStmt(stmt: ClassStmt): void {
+    this.declare(stmt.name)
+    this.define(stmt.name)
   }
 
   visitExpressionStmt(stmt: ExpressionStmt): void {

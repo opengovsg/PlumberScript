@@ -1,5 +1,6 @@
 import { Environment } from './Environment'
 import { Interpreter } from './Interpreter'
+import { LoxInstance } from './LoxInstance'
 import { FunctionStmt } from './Stmt'
 
 export abstract class LoxCallable {
@@ -50,4 +51,10 @@ export class Return {
   }
 }
 
-export type LoxObject = LoxCallable | string | number | null | boolean
+export type LoxObject =
+  | LoxInstance
+  | LoxCallable
+  | string
+  | number
+  | null
+  | boolean

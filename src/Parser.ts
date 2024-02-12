@@ -11,6 +11,7 @@ import {
 } from './Expr'
 import {
   BlockStmt,
+  ClassStmt,
   ExpressionStmt,
   FunctionStmt,
   IfStmt,
@@ -41,7 +42,8 @@ import { SyntaxError } from './error'
  * Language grammar (in pseudo-Backus-Naur Form):
  *
  * - program -> declaration* EOF ;
- * - declaration -> funDecl | varDecl | statement ;
+ * - declaration -> classDecl | funDecl | varDecl | statement ;
+ * - classDecl -> "class" IDENTIFIER "{" function* "}" ;
  * - funDecl -> "fun" function ;
  * - function -> IDENTIFIER "(" parameters? ")" block ;
  * - parameters -> IDENTIFIER ( "," IDENTIFIER )* ;
@@ -94,9 +96,24 @@ export class Parser {
   }
 
   private declaration(): Stmt {
+    if (this.match(TokenType.Class)) return this.classDeclaration()
     if (this.match(TokenType.Fun)) return this.funDeclaration('function')
     if (this.match(TokenType.Var)) return this.varDeclaration()
     return this.statement()
+  }
+
+  private classDeclaration(): Stmt {
+    const name = this.consume(TokenType.Identifier, 'Expect class name.')
+    this.consume(TokenType.LeftBrace, "Expect '{' before class body.")
+
+    const methods: Array<FunctionStmt> = []
+    while (!this.check(TokenType.RightBrace) && !this.isAtEnd()) {
+      methods.push(this.funDeclaration('method'))
+    }
+
+    this.consume(TokenType.RightBrace, "Expect '}' after class body.")
+
+    return new ClassStmt(name, methods)
   }
 
   private statement(): Stmt {

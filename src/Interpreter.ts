@@ -12,8 +12,10 @@ import {
   UnaryExpr,
   VariableExpr,
 } from './Expr'
+import { LoxClass } from './LoxClass'
 import {
   BlockStmt,
+  ClassStmt,
   ExpressionStmt,
   FunctionStmt,
   IfStmt,
@@ -160,6 +162,12 @@ export class Interpreter implements ExprVisitor<LoxObject>, StmtVisitor<void> {
 
   visitBlockStmt(stmt: BlockStmt): void {
     this.executeBlock(stmt.statements, new Environment(this.environment))
+  }
+
+  visitClassStmt(stmt: ClassStmt): void {
+    this.environment.define(stmt.name.lexeme, null)
+    const klass = new LoxClass(stmt.name.lexeme)
+    this.environment.assign(stmt.name, klass)
   }
 
   visitExpressionStmt(stmt: ExpressionStmt): void {
