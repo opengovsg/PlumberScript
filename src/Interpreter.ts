@@ -11,6 +11,7 @@ import {
   LiteralExpr,
   LogicalExpr,
   SetExpr,
+  ThisExpr,
   UnaryExpr,
   VariableExpr,
 } from './Expr'
@@ -81,6 +82,10 @@ export class Interpreter implements ExprVisitor<LoxObject>, StmtVisitor<void> {
     object.set(expr.name, value)
 
     return value
+  }
+
+  visitThisExpr(expr: ThisExpr): LoxObject {
+    return this.lookUpVariable(expr.keyword, expr)
   }
 
   visitUnaryExpr(expr: UnaryExpr): LoxObject {

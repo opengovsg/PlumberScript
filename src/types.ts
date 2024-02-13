@@ -18,6 +18,12 @@ export class LoxFunction extends LoxCallable {
     this.declaration = declaration
   }
 
+  bind(instance: LoxInstance): LoxFunction {
+    const environment = new Environment(this.closure)
+    environment.define('this', instance)
+    return new LoxFunction(this.declaration, environment)
+  }
+
   toString(): string {
     return `<fn ${this.declaration.name.lexeme}>`
   }

@@ -9,6 +9,7 @@ import {
   GroupingExpr,
   LogicalExpr,
   SetExpr,
+  ThisExpr,
   UnaryExpr,
   VariableExpr,
 } from './Expr'
@@ -37,6 +38,10 @@ enum FunctionType {
   Method = 'Method',
 }
 
+enum ClassType {
+  None = 'None',
+  Class = 'Class',
+}
 class Stack extends Array<Scope> {
   isEmpty(): boolean {
     return this.length < 1
@@ -50,6 +55,7 @@ export class Resolver implements ExprVisitor<void>, StmtVisitor<void> {
   private readonly interpreter: Interpreter
   private readonly scopes: Stack = new Stack()
   private currentFunction = FunctionType.None
+  private currentClass = ClassType.None
 
   constructor(interpreter: Interpreter) {
     this.interpreter = interpreter
@@ -62,13 +68,23 @@ export class Resolver implements ExprVisitor<void>, StmtVisitor<void> {
   }
 
   visitClassStmt(stmt: ClassStmt): void {
+    const enclosingClass = this.currentClass
+    this.currentClass = ClassType.Class
+
     this.declare(stmt.name)
     this.define(stmt.name)
+
+    this.beginScope()
+    this.scopes.peek()['this'] = true
 
     for (const method of stmt.methods) {
       const declaration = FunctionType.Method
       this.resolveFunction(method, declaration)
     }
+
+    this.endScope()
+
+    this.currentClass = enclosingClass
   }
 
   visitExpressionStmt(stmt: ExpressionStmt): void {
@@ -154,6 +170,20 @@ export class Resolver implements ExprVisitor<void>, StmtVisitor<void> {
   visitSetExpr(expr: SetExpr): void {
     this.resolve(expr.value)
     this.resolve(expr.object)
+  }
+
+  visitThisExpr(expr: ThisExpr): void {
+    if (this.currentClass === ClassType.None) {
+      errorReporter.report(
+        new ResolvingError(
+          "Can't use 'this' outside of a class",
+          expr.keyword.line,
+        ),
+      )
+      return
+    }
+
+    this.resolveLocal(expr, expr.keyword)
   }
 
   visitUnaryExpr(expr: UnaryExpr): void {
