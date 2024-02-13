@@ -35,6 +35,7 @@ type Scope = Record<string, boolean>
 enum FunctionType {
   None = 'None',
   Function = 'Function',
+  Initializer = 'Initializer',
   Method = 'Method',
 }
 
@@ -78,7 +79,10 @@ export class Resolver implements ExprVisitor<void>, StmtVisitor<void> {
     this.scopes.peek()['this'] = true
 
     for (const method of stmt.methods) {
-      const declaration = FunctionType.Method
+      let declaration = FunctionType.Method
+      if (method.name.lexeme === 'init') {
+        declaration = FunctionType.Initializer
+      }
       this.resolveFunction(method, declaration)
     }
 
@@ -116,7 +120,18 @@ export class Resolver implements ExprVisitor<void>, StmtVisitor<void> {
           stmt.keyword.line,
         ),
       )
-    if (stmt.value !== null) this.resolve(stmt.value)
+    if (stmt.value !== null) {
+      if (this.currentFunction === FunctionType.Initializer) {
+        errorReporter.report(
+          new ResolvingError(
+            "Can't return a value from an initializer",
+            stmt.keyword.line,
+          ),
+        )
+      }
+
+      this.resolve(stmt.value)
+    }
   }
 
   visitVarStmt(stmt: VarStmt): void {

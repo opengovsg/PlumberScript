@@ -11,9 +11,15 @@ export abstract class LoxCallable {
 export class LoxFunction extends LoxCallable {
   private readonly declaration: FunctionStmt
   private readonly closure: Environment
+  private readonly isInitializer: boolean
 
-  constructor(declaration: FunctionStmt, closure: Environment) {
+  constructor(
+    declaration: FunctionStmt,
+    closure: Environment,
+    isInitializer: boolean,
+  ) {
     super()
+    this.isInitializer = isInitializer
     this.closure = closure
     this.declaration = declaration
   }
@@ -21,7 +27,7 @@ export class LoxFunction extends LoxCallable {
   bind(instance: LoxInstance): LoxFunction {
     const environment = new Environment(this.closure)
     environment.define('this', instance)
-    return new LoxFunction(this.declaration, environment)
+    return new LoxFunction(this.declaration, environment, this.isInitializer)
   }
 
   toString(): string {
@@ -45,6 +51,8 @@ export class LoxFunction extends LoxCallable {
         return thrown.value
       } else throw thrown
     }
+
+    if (this.isInitializer) return this.closure.getThis()
     return null
   }
 }

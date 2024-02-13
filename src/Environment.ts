@@ -63,4 +63,8 @@ export class Environment {
 
     throw new RuntimeError(`Undefined variable '${name.lexeme}'`, name)
   }
+
+  getThis(): LoxObject {
+    return this.values['this']
+  }
 }

@@ -190,7 +190,11 @@ export class Interpreter implements ExprVisitor<LoxObject>, StmtVisitor<void> {
 
     const methods: Record<string, LoxFunction> = {}
     for (const method of stmt.methods) {
-      const func = new LoxFunction(method, this.environment)
+      const func = new LoxFunction(
+        method,
+        this.environment,
+        method.name.lexeme === 'init',
+      )
       methods[method.name.lexeme] = func
     }
 
@@ -203,7 +207,7 @@ export class Interpreter implements ExprVisitor<LoxObject>, StmtVisitor<void> {
   }
 
   visitFunctionStmt(stmt: FunctionStmt): void {
-    const func = new LoxFunction(stmt, this.environment)
+    const func = new LoxFunction(stmt, this.environment, false)
     this.environment.define(stmt.name.lexeme, func)
   }
 
