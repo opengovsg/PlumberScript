@@ -34,6 +34,7 @@ type Scope = Record<string, boolean>
 enum FunctionType {
   None = 'None',
   Function = 'Function',
+  Method = 'Method',
 }
 
 class Stack extends Array<Scope> {
@@ -63,6 +64,11 @@ export class Resolver implements ExprVisitor<void>, StmtVisitor<void> {
   visitClassStmt(stmt: ClassStmt): void {
     this.declare(stmt.name)
     this.define(stmt.name)
+
+    for (const method of stmt.methods) {
+      const declaration = FunctionType.Method
+      this.resolveFunction(method, declaration)
+    }
   }
 
   visitExpressionStmt(stmt: ExpressionStmt): void {
