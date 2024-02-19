@@ -4,10 +4,12 @@ import { LoxCallable, LoxFunction, LoxObject } from './types'
 
 export class LoxClass extends LoxCallable {
   name: string
+  readonly superclass: LoxClass | null
   private readonly methods: Record<string, LoxFunction>
 
-  constructor(name: string, methods: Record<string, LoxFunction>) {
+  constructor(name: string, superclass: LoxClass | null, methods: Record<string, LoxFunction>) {
     super()
+    this.superclass = superclass
     this.name = name
     this.methods = methods
   }
@@ -15,6 +17,10 @@ export class LoxClass extends LoxCallable {
   findMethod(name: string): LoxFunction | null {
     if (name in this.methods) {
       return this.methods[name]
+    }
+
+    if (this.superclass !== null) {
+      return this.superclass.findMethod(name)
     }
 
     return null

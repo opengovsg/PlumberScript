@@ -9,6 +9,7 @@ import {
   GroupingExpr,
   LogicalExpr,
   SetExpr,
+  SuperExpr,
   ThisExpr,
   UnaryExpr,
   VariableExpr,
@@ -42,6 +43,7 @@ enum FunctionType {
 enum ClassType {
   None = 'None',
   Class = 'Class',
+  SubClass = 'Subclass'
 }
 class Stack extends Array<Scope> {
   isEmpty(): boolean {
@@ -75,6 +77,18 @@ export class Resolver implements ExprVisitor<void>, StmtVisitor<void> {
     this.declare(stmt.name)
     this.define(stmt.name)
 
+    if (stmt.superclass !== null) {
+      if (stmt.name.lexeme === stmt.superclass.name.lexeme) {
+        errorReporter.report(new ResolvingError("A class can't inherit from itself.", stmt.superclass.name.line))
+      } else {
+        this.currentClass = ClassType.SubClass
+        this.resolve(stmt.superclass)
+
+        this.beginScope()
+        this.scopes.peek()['super'] = true
+      }
+    }
+
     this.beginScope()
     this.scopes.peek()['this'] = true
 
@@ -87,6 +101,8 @@ export class Resolver implements ExprVisitor<void>, StmtVisitor<void> {
     }
 
     this.endScope()
+
+    if (stmt.superclass !== null) this.endScope()
 
     this.currentClass = enclosingClass
   }
@@ -185,6 +201,26 @@ export class Resolver implements ExprVisitor<void>, StmtVisitor<void> {
   visitSetExpr(expr: SetExpr): void {
     this.resolve(expr.value)
     this.resolve(expr.object)
+  }
+
+  visitSuperExpr(expr: SuperExpr): void {
+    if (this.currentClass === ClassType.None) {
+      errorReporter.report(
+        new ResolvingError(
+          "Can't use 'super' outside of class",
+          expr.keyword.line
+        )
+      )
+    } else if (this.currentClass !== ClassType.SubClass) {
+      errorReporter.report(
+        new ResolvingError(
+          "Can't use 'super' in a class with no superclass",
+          expr.keyword.line
+        )
+      )
+    }
+
+    this.resolveLocal(expr, expr.keyword)
   }
 
   visitThisExpr(expr: ThisExpr): void {

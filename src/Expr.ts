@@ -17,7 +17,7 @@ export interface ExprVisitor<R> {
   visitGetExpr(expr: GetExpr): R
   visitSetExpr(expr: SetExpr): R
   visitThisExpr(expr: ThisExpr): R
-  // visitSuperExpr(expr: SuperExpr): R
+  visitSuperExpr(expr: SuperExpr): R
 }
 
 export class BinaryExpr implements Expr {
@@ -174,16 +174,16 @@ export class ThisExpr implements Expr {
   }
 }
 
-// export class SuperExpr implements Expr {
-//   keyword: Token
-//   method: Token
+export class SuperExpr implements Expr {
+  keyword: Token
+  method: Token
 
-//   constructor(keyword: Token, method: Token) {
-//     this.keyword = keyword
-//     this.method = method
-//   }
+  constructor(keyword: Token, method: Token) {
+    this.keyword = keyword
+    this.method = method
+  }
 
-//   accept<R>(visitor: ExprVisitor<R>): R {
-//     return visitor.visitSuperExpr(this)
-//   }
-// }
+  accept<R>(visitor: ExprVisitor<R>): R {
+    return visitor.visitSuperExpr(this)
+  }
+}

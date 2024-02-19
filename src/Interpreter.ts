@@ -11,6 +11,7 @@ import {
   LiteralExpr,
   LogicalExpr,
   SetExpr,
+  SuperExpr,
   ThisExpr,
   UnaryExpr,
   VariableExpr,
@@ -82,6 +83,34 @@ export class Interpreter implements ExprVisitor<LoxObject>, StmtVisitor<void> {
     object.set(expr.name, value)
 
     return value
+  }
+
+  visitSuperExpr(expr: SuperExpr): LoxObject {
+      const distance = this.locals.get(expr)
+
+      if (distance === undefined) throw new RuntimeError("Invalid 'super' usage", expr.keyword)
+
+      const superclass = this.environment.getAt(distance, expr.keyword)
+      if (!(superclass instanceof LoxClass)) {
+        // Unreachable
+        throw new RuntimeError("Invalid 'super' usage", expr.keyword)
+      }
+
+      const object = this.environment.enclosing?.getThis()
+      if (!(object instanceof LoxInstance)) {
+        // Unreachable
+        throw new RuntimeError("Invalid 'super' usage", expr.keyword)
+      }
+
+      const method = superclass.findMethod(expr.method.lexeme)
+      if (method === null) {
+        throw new RuntimeError(
+          `Undefined property ${expr.method.lexeme}.`,
+          expr.method
+        )
+      }
+
+      return method.bind(object)
   }
 
   visitThisExpr(expr: ThisExpr): LoxObject {
@@ -186,7 +215,23 @@ export class Interpreter implements ExprVisitor<LoxObject>, StmtVisitor<void> {
   }
 
   visitClassStmt(stmt: ClassStmt): void {
+    let superclass: LoxObject | null = null
+    if (stmt.superclass !== null) {
+      superclass = this.evaluate(stmt.superclass)
+      if (!(superclass instanceof LoxClass)) {
+        throw new RuntimeError(
+          "Superclass must be a class",
+          stmt.superclass.name
+        )
+      }
+    }
+
     this.environment.define(stmt.name.lexeme, null)
+
+    if (stmt.superclass !== null) {
+      this.environment = new Environment(this.environment)
+      this.environment.define("super", superclass)
+    }
 
     const methods: Record<string, LoxFunction> = {}
     for (const method of stmt.methods) {
@@ -198,7 +243,12 @@ export class Interpreter implements ExprVisitor<LoxObject>, StmtVisitor<void> {
       methods[method.name.lexeme] = func
     }
 
-    const klass = new LoxClass(stmt.name.lexeme, methods)
+    const klass = new LoxClass(stmt.name.lexeme, superclass, methods)
+
+    if (superclass !== null && this.environment.enclosing !== null) {
+      this.environment = this.environment.enclosing
+    }
+
     this.environment.assign(stmt.name, klass)
   }
 

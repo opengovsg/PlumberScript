@@ -8,6 +8,7 @@ import {
   LiteralExpr,
   LogicalExpr,
   SetExpr,
+  SuperExpr,
   ThisExpr,
   UnaryExpr,
   VariableExpr,
@@ -46,7 +47,7 @@ import { SyntaxError } from './error'
  *
  * - program -> declaration* EOF ;
  * - declaration -> classDecl | funDecl | varDecl | statement ;
- * - classDecl -> "class" IDENTIFIER "{" function* "}" ;
+ * - classDecl -> "class" IDENTIFIER ( "<" IDENTIFIER )? "{" function* "}" ;
  * - funDecl -> "fun" function ;
  * - function -> IDENTIFIER "(" parameters? ")" block ;
  * - parameters -> IDENTIFIER ( "," IDENTIFIER )* ;
@@ -69,7 +70,7 @@ import { SyntaxError } from './error'
  * - unary -> ( "!" | "-" ) unary | call ;
  * - call -> primary ( "(" arguments? ")" | "." IDENTIFIER)* ;
  * - arguments -> expression ( "," expression )* ;
- * - primary -> NUMBER | STRING | "true" | "false" | "nil" | "(" expression ")" | IDENTIFIER ;
+ * - primary -> NUMBER | STRING | "true" | "false" | "nil" | "(" expression ")" | IDENTIFIER | "super" "." IDENTIFIER ;
  */
 
 export class Parser {
@@ -107,6 +108,13 @@ export class Parser {
 
   private classDeclaration(): Stmt {
     const name = this.consume(TokenType.Identifier, 'Expect class name.')
+
+    let superclass: VariableExpr | null = null
+    if (this.match(TokenType.Less)) {
+      this.consume(TokenType.Identifier, 'Expect superclass name.')
+      superclass = new VariableExpr(this.previous())
+    }
+
     this.consume(TokenType.LeftBrace, "Expect '{' before class body.")
 
     const methods: Array<FunctionStmt> = []
@@ -116,7 +124,7 @@ export class Parser {
 
     this.consume(TokenType.RightBrace, "Expect '}' after class body.")
 
-    return new ClassStmt(name, methods)
+    return new ClassStmt(name, superclass, methods)
   }
 
   private statement(): Stmt {
@@ -415,6 +423,13 @@ export class Parser {
 
     if (this.match(TokenType.Number, TokenType.String))
       return new LiteralExpr(this.previous().literal)
+
+    if (this.match(TokenType.Super)) {
+      const keyword = this.previous()
+      this.consume(TokenType.Dot, "Expect '.' after 'super'.")
+      const method = this.consume(TokenType.Identifier, "Expect superclass method name.")
+      return new SuperExpr(keyword, method)
+    }
 
     if (this.match(TokenType.This)) return new ThisExpr(this.previous())
 
