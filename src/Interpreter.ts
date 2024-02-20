@@ -16,8 +16,8 @@ import {
   UnaryExpr,
   VariableExpr,
 } from './ast/Expr'
-import { LoxClass } from './ast/LoxClass'
-import { LoxInstance } from './ast/LoxInstance'
+import { PlumberClass } from './ast/PlumberClass'
+import { PlumberInstance } from './ast/PlumberInstance'
 import {
   BlockStmt,
   ClassStmt,
@@ -35,9 +35,9 @@ import { Token } from './ast/Token'
 import { TokenType } from './ast/TokenType'
 import { RuntimeError } from './errors/error'
 import { LoxClockFunction } from './lib/clock'
-import { LoxObject, LoxCallable, LoxFunction, Return } from './ast/types'
+import { PlumberObject, PlumberCallable, PlumberFunction, Return } from './ast/types'
 
-export class Interpreter implements ExprVisitor<LoxObject>, StmtVisitor<void> {
+export class Interpreter implements ExprVisitor<PlumberObject>, StmtVisitor<void> {
   globals = new Environment()
   private environment = this.globals
   private readonly locals: Map<Expr, number> = new Map()
@@ -56,11 +56,11 @@ export class Interpreter implements ExprVisitor<LoxObject>, StmtVisitor<void> {
     }
   }
 
-  visitLiteralExpr(expr: LiteralExpr): LoxObject {
+  visitLiteralExpr(expr: LiteralExpr): PlumberObject {
     return expr.value
   }
 
-  visitLogicalExpr(expr: LogicalExpr): LoxObject {
+  visitLogicalExpr(expr: LogicalExpr): PlumberObject {
     const left = this.evaluate(expr.left)
 
     if (expr.operator.type === TokenType.Or) {
@@ -72,10 +72,10 @@ export class Interpreter implements ExprVisitor<LoxObject>, StmtVisitor<void> {
     return this.evaluate(expr.right)
   }
 
-  visitSetExpr(expr: SetExpr): LoxObject {
+  visitSetExpr(expr: SetExpr): PlumberObject {
     const object = this.evaluate(expr.object)
 
-    if (!(object instanceof LoxInstance)) {
+    if (!(object instanceof PlumberInstance)) {
       throw new RuntimeError('Only instances have fields.', expr.name)
     }
 
@@ -85,19 +85,19 @@ export class Interpreter implements ExprVisitor<LoxObject>, StmtVisitor<void> {
     return value
   }
 
-  visitSuperExpr(expr: SuperExpr): LoxObject {
+  visitSuperExpr(expr: SuperExpr): PlumberObject {
       const distance = this.locals.get(expr)
 
       if (distance === undefined) throw new RuntimeError("Invalid 'super' usage", expr.keyword)
 
       const superclass = this.environment.getAt(distance, expr.keyword)
-      if (!(superclass instanceof LoxClass)) {
+      if (!(superclass instanceof PlumberClass)) {
         // Unreachable
         throw new RuntimeError("Invalid 'super' usage", expr.keyword)
       }
 
       const object = this.environment.enclosing?.getThis()
-      if (!(object instanceof LoxInstance)) {
+      if (!(object instanceof PlumberInstance)) {
         // Unreachable
         throw new RuntimeError("Invalid 'super' usage", expr.keyword)
       }
@@ -113,11 +113,11 @@ export class Interpreter implements ExprVisitor<LoxObject>, StmtVisitor<void> {
       return method.bind(object)
   }
 
-  visitThisExpr(expr: ThisExpr): LoxObject {
+  visitThisExpr(expr: ThisExpr): PlumberObject {
     return this.lookUpVariable(expr.keyword, expr)
   }
 
-  visitUnaryExpr(expr: UnaryExpr): LoxObject {
+  visitUnaryExpr(expr: UnaryExpr): PlumberObject {
     const right = this.evaluate(expr.right)
 
     switch (expr.operator.type) {
@@ -132,11 +132,11 @@ export class Interpreter implements ExprVisitor<LoxObject>, StmtVisitor<void> {
     return null
   }
 
-  visitVariableExpr(expr: VariableExpr): LoxObject {
+  visitVariableExpr(expr: VariableExpr): PlumberObject {
     return this.lookUpVariable(expr.name, expr)
   }
 
-  private lookUpVariable(name: Token, expr: Expr): LoxObject {
+  private lookUpVariable(name: Token, expr: Expr): PlumberObject {
     const distance = this.locals.get(expr)
     if (distance !== undefined) {
       return this.environment.getAt(distance, name)
@@ -145,29 +145,29 @@ export class Interpreter implements ExprVisitor<LoxObject>, StmtVisitor<void> {
     }
   }
 
-  checkNumberOperand(operator: Token, operand: LoxObject): void {
+  checkNumberOperand(operator: Token, operand: PlumberObject): void {
     if (typeof operand === 'number') return
     throw new RuntimeError('Operand must be a number.', operator)
   }
 
-  checkNumberOperands(operator: Token, left: LoxObject, right: LoxObject) {
+  checkNumberOperands(operator: Token, left: PlumberObject, right: PlumberObject) {
     if (typeof left === 'number' && typeof right === 'number') return
     throw new RuntimeError('Operands must be numbers.', operator)
   }
 
-  private isTruthy(object: LoxObject): boolean {
+  private isTruthy(object: PlumberObject): boolean {
     if (object === null) return false
     if (typeof object === 'boolean') return object
     return true
   }
 
-  private isEqual(a: LoxObject, b: LoxObject): boolean {
+  private isEqual(a: PlumberObject, b: PlumberObject): boolean {
     if (a === null && b === null) return true
     if (a === null) return false
     return a === b
   }
 
-  stringify(object: LoxObject): string {
+  stringify(object: PlumberObject): string {
     if (object === null) return 'nil'
 
     if (typeof object === 'number') {
@@ -181,11 +181,11 @@ export class Interpreter implements ExprVisitor<LoxObject>, StmtVisitor<void> {
     return object.toString()
   }
 
-  visitGroupingExpr(expr: GroupingExpr): LoxObject {
+  visitGroupingExpr(expr: GroupingExpr): PlumberObject {
     return this.evaluate(expr.expression)
   }
 
-  evaluate(expr: Expr): LoxObject {
+  evaluate(expr: Expr): PlumberObject {
     return expr.accept(this)
   }
 
@@ -215,10 +215,10 @@ export class Interpreter implements ExprVisitor<LoxObject>, StmtVisitor<void> {
   }
 
   visitClassStmt(stmt: ClassStmt): void {
-    let superclass: LoxObject | null = null
+    let superclass: PlumberObject | null = null
     if (stmt.superclass !== null) {
       superclass = this.evaluate(stmt.superclass)
-      if (!(superclass instanceof LoxClass)) {
+      if (!(superclass instanceof PlumberClass)) {
         throw new RuntimeError(
           "Superclass must be a class",
           stmt.superclass.name
@@ -233,9 +233,9 @@ export class Interpreter implements ExprVisitor<LoxObject>, StmtVisitor<void> {
       this.environment.define("super", superclass)
     }
 
-    const methods: Record<string, LoxFunction> = {}
+    const methods: Record<string, PlumberFunction> = {}
     for (const method of stmt.methods) {
-      const func = new LoxFunction(
+      const func = new PlumberFunction(
         method,
         this.environment,
         method.name.lexeme === 'init',
@@ -243,7 +243,7 @@ export class Interpreter implements ExprVisitor<LoxObject>, StmtVisitor<void> {
       methods[method.name.lexeme] = func
     }
 
-    const klass = new LoxClass(stmt.name.lexeme, superclass, methods)
+    const klass = new PlumberClass(stmt.name.lexeme, superclass, methods)
 
     if (superclass !== null && this.environment.enclosing !== null) {
       this.environment = this.environment.enclosing
@@ -257,7 +257,7 @@ export class Interpreter implements ExprVisitor<LoxObject>, StmtVisitor<void> {
   }
 
   visitFunctionStmt(stmt: FunctionStmt): void {
-    const func = new LoxFunction(stmt, this.environment, false)
+    const func = new PlumberFunction(stmt, this.environment, false)
     this.environment.define(stmt.name.lexeme, func)
   }
 
@@ -275,14 +275,14 @@ export class Interpreter implements ExprVisitor<LoxObject>, StmtVisitor<void> {
   }
 
   visitReturnStmt(stmt: ReturnStmt): void {
-    let value: LoxObject = null
+    let value: PlumberObject = null
     if (stmt.value !== null) value = this.evaluate(stmt.value)
 
     throw new Return(value)
   }
 
   visitVarStmt(stmt: VarStmt): void {
-    let value: LoxObject = null
+    let value: PlumberObject = null
     if (stmt.initializer !== null) {
       value = this.evaluate(stmt.initializer)
     }
@@ -296,7 +296,7 @@ export class Interpreter implements ExprVisitor<LoxObject>, StmtVisitor<void> {
     }
   }
 
-  visitAssignExpr(expr: AssignExpr): LoxObject {
+  visitAssignExpr(expr: AssignExpr): PlumberObject {
     const value = this.evaluate(expr.value)
 
     const distance = this.locals.get(expr)
@@ -309,7 +309,7 @@ export class Interpreter implements ExprVisitor<LoxObject>, StmtVisitor<void> {
     return value
   }
 
-  visitBinaryExpr(expr: BinaryExpr): LoxObject {
+  visitBinaryExpr(expr: BinaryExpr): PlumberObject {
     const left = this.evaluate(expr.left)
     const right = this.evaluate(expr.right)
 
@@ -354,15 +354,15 @@ export class Interpreter implements ExprVisitor<LoxObject>, StmtVisitor<void> {
     return null
   }
 
-  visitCallExpr(expr: CallExpr): LoxObject {
+  visitCallExpr(expr: CallExpr): PlumberObject {
     const callee = this.evaluate(expr.callee)
-    const args: Array<LoxObject> = []
+    const args: Array<PlumberObject> = []
 
     for (const arg of expr.args) {
       args.push(this.evaluate(arg))
     }
 
-    if (!(callee instanceof LoxCallable)) {
+    if (!(callee instanceof PlumberCallable)) {
       throw new RuntimeError('Can only call functions and classes', expr.paren)
     }
 
@@ -376,9 +376,9 @@ export class Interpreter implements ExprVisitor<LoxObject>, StmtVisitor<void> {
     return callee.call(this, args)
   }
 
-  visitGetExpr(expr: GetExpr): LoxObject {
+  visitGetExpr(expr: GetExpr): PlumberObject {
     const object = this.evaluate(expr.object)
-    if (object instanceof LoxInstance) {
+    if (object instanceof PlumberInstance) {
       return object.get(expr.name)
     }
 

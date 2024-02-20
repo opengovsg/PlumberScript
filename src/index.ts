@@ -1,3 +1,3 @@
-import { Lox } from './Lox'
+import { Plumber } from './Plumber'
 
-Lox.main()
+Plumber.main()

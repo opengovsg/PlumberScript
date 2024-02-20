@@ -8,8 +8,8 @@ import { Token } from './ast/Token'
 import { Resolver } from './Resolver'
 import { color } from './color'
 
-const usage = 'Usage: tslox [script]'
-export class Lox {
+const usage = 'Usage: plumber [script]'
+export class Plumber {
   private static readonly interpreter = new Interpreter()
 
   static main(): void {
@@ -19,15 +19,15 @@ export class Lox {
       console.log(color.green(usage))
       process.exit(64)
     } else if (args.length === 1) {
-      Lox.runFile(args[0])
+      Plumber.runFile(args[0])
     } else {
-      Lox.runPrompt()
+      Plumber.runPrompt()
     }
   }
 
   private static runFile(path: string): void {
     const bytes = fs.readFileSync(path)
-    Lox.run(bytes.toString())
+    Plumber.run(bytes.toString())
 
     if (errorReporter.hadCliError) {
       console.log(color.red(usage))
@@ -41,7 +41,7 @@ export class Lox {
     const rl = createInterface({
       input: process.stdin,
       output: process.stdout,
-      prompt: color.green('[tslox]> '),
+      prompt: color.green('[plumber]> '),
     })
 
     rl.on('line', (input) => {
@@ -51,7 +51,7 @@ export class Lox {
 
       if (line) {
         try {
-          Lox.run(line)
+          Plumber.run(line)
         } catch (error) {
           errorReporter.report(error as Error)
         }

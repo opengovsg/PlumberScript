@@ -1,13 +1,13 @@
-import { LoxClass } from './LoxClass'
+import { PlumberClass } from './PlumberClass'
 import { Token } from './Token'
 import { RuntimeError } from '../errors/error'
-import { LoxObject } from './types'
+import { PlumberObject } from './types'
 
-export class LoxInstance {
-  private klass: LoxClass
-  private readonly fields: Record<string, LoxObject> = {}
+export class PlumberInstance {
+  private klass: PlumberClass
+  private readonly fields: Record<string, PlumberObject> = {}
 
-  constructor(klass: LoxClass) {
+  constructor(klass: PlumberClass) {
     this.klass = klass
   }
 
@@ -15,7 +15,7 @@ export class LoxInstance {
     return `${this.klass.name} instance`
   }
 
-  get(name: Token): LoxObject {
+  get(name: Token): PlumberObject {
     if (name.lexeme in this.fields) {
       return this.fields[name.lexeme]
     }
@@ -26,7 +26,7 @@ export class LoxInstance {
     throw new RuntimeError(`Undefined property '${name.lexeme}'.`, name)
   }
 
-  set(name: Token, value: LoxObject): void {
+  set(name: Token, value: PlumberObject): void {
     this.fields[name.lexeme] = value
   }
 }

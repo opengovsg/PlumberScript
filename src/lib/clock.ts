@@ -1,11 +1,11 @@
-import { LoxCallable, LoxObject } from '../ast/types'
+import { PlumberCallable, PlumberObject } from '../ast/types'
 
-export class LoxClockFunction extends LoxCallable {
+export class LoxClockFunction extends PlumberCallable {
   arity(): number {
     return 0
   }
 
-  call(): LoxObject {
+  call(): PlumberObject {
     return Date.now().valueOf() / 1000.0
   }
 

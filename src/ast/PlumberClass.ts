@@ -1,20 +1,20 @@
 import { Interpreter } from '../Interpreter'
-import { LoxInstance } from './LoxInstance'
-import { LoxCallable, LoxFunction, LoxObject } from './types'
+import { PlumberInstance } from './PlumberInstance'
+import { PlumberCallable, PlumberFunction, PlumberObject } from './types'
 
-export class LoxClass extends LoxCallable {
+export class PlumberClass extends PlumberCallable {
   name: string
-  readonly superclass: LoxClass | null
-  private readonly methods: Record<string, LoxFunction>
+  readonly superclass: PlumberClass | null
+  private readonly methods: Record<string, PlumberFunction>
 
-  constructor(name: string, superclass: LoxClass | null, methods: Record<string, LoxFunction>) {
+  constructor(name: string, superclass: PlumberClass | null, methods: Record<string, PlumberFunction>) {
     super()
     this.superclass = superclass
     this.name = name
     this.methods = methods
   }
 
-  findMethod(name: string): LoxFunction | null {
+  findMethod(name: string): PlumberFunction | null {
     if (name in this.methods) {
       return this.methods[name]
     }
@@ -30,8 +30,8 @@ export class LoxClass extends LoxCallable {
     return this.name
   }
 
-  call(interpreter: Interpreter, args: Array<LoxObject>) {
-    const instance = new LoxInstance(this)
+  call(interpreter: Interpreter, args: Array<PlumberObject>) {
+    const instance = new PlumberInstance(this)
     const initializer = this.findMethod('init')
     if (initializer !== null) {
       initializer.bind(instance).call(interpreter, args)

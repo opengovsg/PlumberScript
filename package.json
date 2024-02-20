@@ -1,19 +1,19 @@
 {
-  "name": "tslox",
-  "description": "An interpreter of the Lox language in TypeScript",
-  "author": "Yuanruo Liang <liangyuanruo@gmail.com>",
+  "name": "PlumberScript",
+  "description": "Programming language for Plumber Compute, implemented in TypeScript",
+  "author": "Yuanruo Liang <yuanruo@open.gov.sg>",
   "private": true,
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/liangyuanruo/tslox"
+    "url": "https://github.com/opengovsg/PlumberScript"
   },
   "bin": {},
   "scripts": {
     "build": "tsc",
     "dev": "ts-node-script ./src/index.ts",
     "lint": "eslint",
-    "tslox": "node ./build/index.js"
+    "plumber": "node ./build/index.js"
   },
   "devDependencies": {
     "@types/node": "^20.11.5",

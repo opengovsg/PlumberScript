@@ -1,14 +1,14 @@
 import { Environment } from '../Environment'
 import { Interpreter } from '../Interpreter'
-import { LoxInstance } from './LoxInstance'
+import { PlumberInstance } from './PlumberInstance'
 import { FunctionStmt } from './Stmt'
 
-export abstract class LoxCallable {
+export abstract class PlumberCallable {
   abstract arity(): number
-  abstract call(interpreter: Interpreter, args: Array<LoxObject>): LoxObject
+  abstract call(interpreter: Interpreter, args: Array<PlumberObject>): PlumberObject
 }
 
-export class LoxFunction extends LoxCallable {
+export class PlumberFunction extends PlumberCallable {
   private readonly declaration: FunctionStmt
   private readonly closure: Environment
   private readonly isInitializer: boolean
@@ -24,10 +24,10 @@ export class LoxFunction extends LoxCallable {
     this.declaration = declaration
   }
 
-  bind(instance: LoxInstance): LoxFunction {
+  bind(instance: PlumberInstance): PlumberFunction {
     const environment = new Environment(this.closure)
     environment.define('this', instance)
-    return new LoxFunction(this.declaration, environment, this.isInitializer)
+    return new PlumberFunction(this.declaration, environment, this.isInitializer)
   }
 
   toString(): string {
@@ -38,7 +38,7 @@ export class LoxFunction extends LoxCallable {
     return this.declaration.params.length
   }
 
-  call(interpreter: Interpreter, args: Array<LoxObject>): LoxObject {
+  call(interpreter: Interpreter, args: Array<PlumberObject>): PlumberObject {
     const environment = new Environment(this.closure)
 
     for (const [i, param] of this.declaration.params.entries()) {
@@ -58,16 +58,16 @@ export class LoxFunction extends LoxCallable {
 }
 
 export class Return {
-  readonly value: LoxObject
+  readonly value: PlumberObject
 
-  constructor(value: LoxObject) {
+  constructor(value: PlumberObject) {
     this.value = value
   }
 }
 
-export type LoxObject =
-  | LoxInstance
-  | LoxCallable
+export type PlumberObject =
+  | PlumberInstance
+  | PlumberCallable
   | string
   | number
   | null
