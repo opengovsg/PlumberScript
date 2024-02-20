@@ -43,34 +43,69 @@ import { SyntaxError } from './error'
  * | Factor     | / *       | Left       |
  * | Unary      | ! -       | Right      |
  *
- * Language grammar (in pseudo-Backus-Naur Form):
- *
+ * SYNTAX GRAMMAR (in pseudo Backus-Naur Form):
+ * Start with the first rule that matches an entire program (or single REPL entry).
+ * 
  * - program -> declaration* EOF ;
+ * 
+ * DECLARATIONS
+ * A program is a series of declarations, which are the statements that bind new
+ * identifiers or any of the other statement types.
+ * 
  * - declaration -> classDecl | funDecl | varDecl | statement ;
  * - classDecl -> "class" IDENTIFIER ( "<" IDENTIFIER )? "{" function* "}" ;
  * - funDecl -> "fun" function ;
- * - function -> IDENTIFIER "(" parameters? ")" block ;
- * - parameters -> IDENTIFIER ( "," IDENTIFIER )* ;
  * - varDecl -> "var" IDENTIFIER ( "=" expression )? ";" ;
- * - statement -> block | exprStmt | forStmt | ifStmt | whileStmt | printStmt | returnStmt ;
- * - block -> "{" declaration* "}" ;
+ * 
+ * STATEMENTS
+ * The remaining statement rules produce side effects, but do not introduce bindings.
+ * - statement -> exprStmt | forStmt | ifStmt | printStmt | returnStmt | whileStmt | block ;
  * - exprStmt -> expression ";" ;
  * - forStmt -> "for" "(" ( varDecl | exprStmt | ";") expression? ";" expression? ")" statement;
  * - ifStmt -> "if" "(" expression ")" statement ( "else" statement )? ;
- * - whileStmt -> "while" "(" expression ")" statement ;
  * - printStmt -> "print" expression ";" ;
  * - returnStmt -> "return" expression? ";" ;
+ * - whileStmt -> "while" "(" expression ")" statement ;
+ * - block -> "{" declaration* "}" ;
+ * 
+ * EXPRESSIONS
+ * Expressions produce values. There are a number of unary and binary operators with
+ * different levels of precedence. Here, we use a separate rule for each precedence level
+ * to make it explicit.
+ * 
  * - expression -> assignment ;
+ * 
  * - assignment -> ( call "." )? IDENTIFIER "=" assignment | logic_or ;
+ * 
  * - logic_or -> logic_and ( "or" logic_and )* ;
  * - logic_and -> equality ( "and" equality )* ;
  * - equality -> comparison ( ("!="|"==") comparison )* ;
+ * - comparison -> term ( ( ">" | ">=" | "<" | "<=") term )* ;
  * - term -> factor ( ("-"|"+") factor )* ;
  * - factor -> unary ( ("/"|"*") unary )* | primary ;
+ * 
  * - unary -> ( "!" | "-" ) unary | call ;
  * - call -> primary ( "(" arguments? ")" | "." IDENTIFIER)* ;
- * - arguments -> expression ( "," expression )* ;
  * - primary -> NUMBER | STRING | "true" | "false" | "nil" | "(" expression ")" | IDENTIFIER | "super" "." IDENTIFIER ;
+ * 
+ * UTILITY RULES
+ * In order to keep the above rules a little cleaner, some of the grammar is split
+ * out into a few reused helper rules:
+ * 
+ * - function -> IDENTIFIER "(" parameters? ")" block ;
+ * - parameters -> IDENTIFIER ( "," IDENTIFIER )* ;
+ * - arguments -> expression ( "," expression )* ;
+ * 
+ * LEXICAL GRAMMAR
+ * The lexical grammar is used by the scanner to group characters into tokens.
+ * Where the syntax is context-free, the lexical grammar is regular - note that
+ * there are no recursive rules.
+ * 
+ * NUMBER -> DIGIT+ ("." DIGIT+ )? ;
+ * STRING -> "\"" <any char except "\"">* "\"" ;
+ * IDENTIFIER -> ALPHA ( ALPHA | DIGIT )* ;
+ * ALPHA -> "a" ... "z" | "A" ... "Z" | "_" ;
+ * DIGIT -> "0" ... "9" ;
  */
 
 export class Parser {
