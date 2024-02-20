@@ -170,7 +170,7 @@ export class Interpreter implements ExprVisitor<PlumberObject>, StmtVisitor<void
   }
 
   stringify(object: PlumberObject): string {
-    if (object === null) return 'nil'
+    if (object === null) return 'null'
 
     if (typeof object === 'number') {
       let text = object.toString()

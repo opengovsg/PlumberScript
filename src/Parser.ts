@@ -54,8 +54,8 @@ import { SyntaxError } from './errors/error'
  * 
  * - declaration -> classDecl | funDecl | varDecl | statement ;
  * - classDecl -> "class" IDENTIFIER ( "<" IDENTIFIER )? "{" function* "}" ;
- * - funDecl -> "fun" function ;
- * - varDecl -> "var" IDENTIFIER ( "=" expression )? ";" ;
+ * - funDecl -> "function" function ;
+ * - letDecl -> "let" IDENTIFIER ( "=" expression )? ";" ;
  * 
  * STATEMENTS
  * The remaining statement rules produce side effects, but do not introduce bindings.
@@ -86,7 +86,7 @@ import { SyntaxError } from './errors/error'
  * 
  * - unary -> ( "!" | "-" ) unary | call ;
  * - call -> primary ( "(" arguments? ")" | "." IDENTIFIER)* ;
- * - primary -> NUMBER | STRING | "true" | "false" | "nil" | "(" expression ")" | IDENTIFIER | "super" "." IDENTIFIER ;
+ * - primary -> NUMBER | STRING | "true" | "false" | "null" | "(" expression ")" | IDENTIFIER | "super" "." IDENTIFIER ;
  * 
  * UTILITY RULES
  * In order to keep the above rules a little cleaner, some of the grammar is split
@@ -156,8 +156,8 @@ export class Parser {
 
   private declaration(): Stmt {
     if (this.match(TokenType.Class)) return this.classDeclaration()
-    if (this.match(TokenType.Fun)) return this.funDeclaration('function')
-    if (this.match(TokenType.Var)) return this.varDeclaration()
+    if (this.match(TokenType.Function)) return this.functionDeclaration('function')
+    if (this.match(TokenType.Let)) return this.letDeclaration()
     return this.statement()
   }
 
@@ -165,7 +165,7 @@ export class Parser {
     const name = this.consume(TokenType.Identifier, 'Expect class name.')
 
     let superclass: VariableExpr | null = null
-    if (this.match(TokenType.Less)) {
+    if (this.match(TokenType.Extends)) {
       this.consume(TokenType.Identifier, 'Expect superclass name.')
       superclass = new VariableExpr(this.previous())
     }
@@ -174,7 +174,7 @@ export class Parser {
 
     const methods: Array<FunctionStmt> = []
     while (!this.check(TokenType.RightBrace) && !this.isAtEnd()) {
-      methods.push(this.funDeclaration('method'))
+      methods.push(this.functionDeclaration('method'))
     }
 
     this.consume(TokenType.RightBrace, "Expect '}' after class body.")
@@ -198,8 +198,8 @@ export class Parser {
     let initializer
     if (this.match(TokenType.Semicolon)) {
       initializer = null
-    } else if (this.match(TokenType.Var)) {
-      initializer = this.varDeclaration()
+    } else if (this.match(TokenType.Let)) {
+      initializer = this.letDeclaration()
     } else {
       initializer = this.expressionStatement()
     }
@@ -264,7 +264,7 @@ export class Parser {
     return new ReturnStmt(keyword, value)
   }
 
-  private varDeclaration(): Stmt {
+  private letDeclaration(): Stmt {
     const name: Token = this.consume(
       TokenType.Identifier,
       'Expect variable name.',
@@ -294,7 +294,7 @@ export class Parser {
     return new ExpressionStmt(expr)
   }
 
-  private funDeclaration(kind: string): FunctionStmt {
+  private functionDeclaration(kind: string): FunctionStmt {
     const name = this.consume(TokenType.Identifier, `Expect ${kind} name.`)
     this.consume(TokenType.LeftParen, `Expect '(' after ${kind} name.`)
     const parameters: Array<Token> = []
@@ -474,7 +474,7 @@ export class Parser {
   private primary(): Expr {
     if (this.match(TokenType.False)) return new LiteralExpr(false)
     if (this.match(TokenType.True)) return new LiteralExpr(true)
-    if (this.match(TokenType.Nil)) return new LiteralExpr(null)
+    if (this.match(TokenType.Null)) return new LiteralExpr(null)
 
     if (this.match(TokenType.Number, TokenType.String))
       return new LiteralExpr(this.previous().literal)
@@ -553,11 +553,11 @@ export class Parser {
       switch (this.peek().type) {
         case TokenType.Class:
         case TokenType.For:
-        case TokenType.Fun:
+        case TokenType.Function:
         case TokenType.If:
         case TokenType.Print:
         case TokenType.Return:
-        case TokenType.Var:
+        case TokenType.Let:
         case TokenType.While:
           return
       }
