@@ -34,7 +34,7 @@ import {
 import { Token } from './ast/Token'
 import { TokenType } from './ast/TokenType'
 import { RuntimeError } from './errors/error'
-import { LoxClockFunction } from './lib/clock'
+import { AbsFunction } from './lib/abs'
 import { PlumberObject, PlumberCallable, PlumberFunction, Return } from './ast/types'
 
 export class Interpreter implements ExprVisitor<PlumberObject>, StmtVisitor<void> {
@@ -43,7 +43,7 @@ export class Interpreter implements ExprVisitor<PlumberObject>, StmtVisitor<void
   private readonly locals: Map<Expr, number> = new Map()
 
   constructor() {
-    this.globals.define('clock', new LoxClockFunction()) // native function clock()
+    this.globals.define('ABS', new AbsFunction())
   }
 
   interpret(target: Array<Stmt>) {
