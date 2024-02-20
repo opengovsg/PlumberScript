@@ -18,7 +18,7 @@ const keywords: Record<string, TokenType> = {
   super: TokenType.Super,
   this: TokenType.This,
   true: TokenType.True,
-  var: TokenType.Var,
+  let: TokenType.Let,
   while: TokenType.While,
 }
 

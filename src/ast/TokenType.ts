@@ -42,7 +42,7 @@ export enum TokenType {
   Super = 'Super',
   This = 'This',
   True = 'True',
-  Var = 'Var',
+  Let = 'Let',
   While = 'While',
 
   EOF = 'EOF',

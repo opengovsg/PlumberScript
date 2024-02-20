@@ -55,7 +55,7 @@ import { SyntaxError } from './errors/error'
  * - declaration -> classDecl | funDecl | varDecl | statement ;
  * - classDecl -> "class" IDENTIFIER ( "<" IDENTIFIER )? "{" function* "}" ;
  * - funDecl -> "fun" function ;
- * - varDecl -> "var" IDENTIFIER ( "=" expression )? ";" ;
+ * - letDecl -> "let" IDENTIFIER ( "=" expression )? ";" ;
  * 
  * STATEMENTS
  * The remaining statement rules produce side effects, but do not introduce bindings.
@@ -157,7 +157,7 @@ export class Parser {
   private declaration(): Stmt {
     if (this.match(TokenType.Class)) return this.classDeclaration()
     if (this.match(TokenType.Fun)) return this.funDeclaration('function')
-    if (this.match(TokenType.Var)) return this.varDeclaration()
+    if (this.match(TokenType.Let)) return this.letDeclaration()
     return this.statement()
   }
 
@@ -198,8 +198,8 @@ export class Parser {
     let initializer
     if (this.match(TokenType.Semicolon)) {
       initializer = null
-    } else if (this.match(TokenType.Var)) {
-      initializer = this.varDeclaration()
+    } else if (this.match(TokenType.Let)) {
+      initializer = this.letDeclaration()
     } else {
       initializer = this.expressionStatement()
     }
@@ -264,7 +264,7 @@ export class Parser {
     return new ReturnStmt(keyword, value)
   }
 
-  private varDeclaration(): Stmt {
+  private letDeclaration(): Stmt {
     const name: Token = this.consume(
       TokenType.Identifier,
       'Expect variable name.',
@@ -557,7 +557,7 @@ export class Parser {
         case TokenType.If:
         case TokenType.Print:
         case TokenType.Return:
-        case TokenType.Var:
+        case TokenType.Let:
         case TokenType.While:
           return
       }
