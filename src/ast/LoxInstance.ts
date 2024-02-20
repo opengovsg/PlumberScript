@@ -1,6 +1,6 @@
 import { LoxClass } from './LoxClass'
 import { Token } from './Token'
-import { RuntimeError } from './error'
+import { RuntimeError } from '../errors/error'
 import { LoxObject } from './types'
 
 export class LoxInstance {

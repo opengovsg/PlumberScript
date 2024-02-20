@@ -1,7 +1,7 @@
-import { Token } from './Token'
-import { TokenType } from './TokenType'
-import { LoxObject } from './types'
-import { SyntaxError } from './error'
+import { Token } from './ast/Token'
+import { TokenType } from './ast/TokenType'
+import { LoxObject } from './ast/types'
+import { SyntaxError } from './errors/error'
 
 const keywords: Record<string, TokenType> = {
   and: TokenType.And,

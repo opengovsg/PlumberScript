@@ -1,4 +1,4 @@
-import { errorReporter } from './ErrorReporter'
+import { errorReporter } from './errors/ErrorReporter'
 import {
   AssignExpr,
   BinaryExpr,
@@ -13,7 +13,7 @@ import {
   ThisExpr,
   UnaryExpr,
   VariableExpr,
-} from './Expr'
+} from './ast/Expr'
 import { Interpreter } from './Interpreter'
 import {
   BlockStmt,
@@ -27,9 +27,9 @@ import {
   StmtVisitor,
   VarStmt,
   WhileStmt,
-} from './Stmt'
-import { Token } from './Token'
-import { ResolvingError } from './error'
+} from './ast/Stmt'
+import { Token } from './ast/Token'
+import { ResolvingError } from './errors/error'
 
 type Scope = Record<string, boolean>
 

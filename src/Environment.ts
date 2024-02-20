@@ -1,6 +1,6 @@
-import { Token } from './Token'
-import { RuntimeError } from './error'
-import { LoxObject } from './types'
+import { Token } from './ast/Token'
+import { RuntimeError } from './errors/error'
+import { LoxObject } from './ast/types'
 
 export class Environment {
   enclosing: Environment | null

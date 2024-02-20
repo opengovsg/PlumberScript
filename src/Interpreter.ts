@@ -1,5 +1,5 @@
 import { Environment } from './Environment'
-import { errorReporter } from './ErrorReporter'
+import { errorReporter } from './errors/ErrorReporter'
 import {
   AssignExpr,
   BinaryExpr,
@@ -15,9 +15,9 @@ import {
   ThisExpr,
   UnaryExpr,
   VariableExpr,
-} from './Expr'
-import { LoxClass } from './LoxClass'
-import { LoxInstance } from './LoxInstance'
+} from './ast/Expr'
+import { LoxClass } from './ast/LoxClass'
+import { LoxInstance } from './ast/LoxInstance'
 import {
   BlockStmt,
   ClassStmt,
@@ -30,12 +30,12 @@ import {
   StmtVisitor,
   VarStmt,
   WhileStmt,
-} from './Stmt'
-import { Token } from './Token'
-import { TokenType } from './TokenType'
-import { RuntimeError } from './error'
+} from './ast/Stmt'
+import { Token } from './ast/Token'
+import { TokenType } from './ast/TokenType'
+import { RuntimeError } from './errors/error'
 import { LoxClockFunction } from './lib/clock'
-import { LoxObject, LoxCallable, LoxFunction, Return } from './types'
+import { LoxObject, LoxCallable, LoxFunction, Return } from './ast/types'
 
 export class Interpreter implements ExprVisitor<LoxObject>, StmtVisitor<void> {
   globals = new Environment()

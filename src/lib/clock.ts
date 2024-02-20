@@ -1,4 +1,4 @@
-import { LoxCallable, LoxObject } from '../types'
+import { LoxCallable, LoxObject } from '../ast/types'
 
 export class LoxClockFunction extends LoxCallable {
   arity(): number {

@@ -12,7 +12,7 @@ import {
   ThisExpr,
   UnaryExpr,
   VariableExpr,
-} from './Expr'
+} from './ast/Expr'
 import {
   BlockStmt,
   ClassStmt,
@@ -24,11 +24,11 @@ import {
   Stmt,
   VarStmt,
   WhileStmt,
-} from './Stmt'
-import { Token } from './Token'
-import { TokenType } from './TokenType'
-import { errorReporter } from './ErrorReporter'
-import { SyntaxError } from './error'
+} from './ast/Stmt'
+import { Token } from './ast/Token'
+import { TokenType } from './ast/TokenType'
+import { errorReporter } from './errors/ErrorReporter'
+import { SyntaxError } from './errors/error'
 
 /**
  * Recursive descent parser.

@@ -1,4 +1,4 @@
-import { Interpreter } from './Interpreter'
+import { Interpreter } from '../Interpreter'
 import { LoxInstance } from './LoxInstance'
 import { LoxCallable, LoxFunction, LoxObject } from './types'
 

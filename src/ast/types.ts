@@ -1,5 +1,5 @@
-import { Environment } from './Environment'
-import { Interpreter } from './Interpreter'
+import { Environment } from '../Environment'
+import { Interpreter } from '../Interpreter'
 import { LoxInstance } from './LoxInstance'
 import { FunctionStmt } from './Stmt'
 
