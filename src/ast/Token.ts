@@ -1,16 +1,16 @@
 import { TokenType } from './TokenType'
-import { LoxObject } from './types'
+import { PlumberObject } from './types'
 
 export class Token {
   type: TokenType
   lexeme: string
-  literal: LoxObject
+  literal: PlumberObject
   line: number
 
   constructor(
     type: TokenType,
     lexeme: string,
-    literal: LoxObject,
+    literal: PlumberObject,
     line: number,
   ) {
     this.type = type

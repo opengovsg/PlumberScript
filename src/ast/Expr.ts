@@ -1,4 +1,4 @@
-import { LoxObject } from './types'
+import { PlumberObject } from './types'
 import { Token } from './Token'
 
 export interface Expr {
@@ -49,9 +49,9 @@ export class GroupingExpr implements Expr {
 }
 
 export class LiteralExpr implements Expr {
-  value: LoxObject
+  value: PlumberObject
 
-  constructor(value: LoxObject) {
+  constructor(value: PlumberObject) {
     this.value = value
   }
 

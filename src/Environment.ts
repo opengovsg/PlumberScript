@@ -1,17 +1,17 @@
 import { Token } from './ast/Token'
 import { RuntimeError } from './errors/error'
-import { LoxObject } from './ast/types'
+import { PlumberObject } from './ast/types'
 
 export class Environment {
   enclosing: Environment | null
-  private values: Record<string, LoxObject> = {}
+  private values: Record<string, PlumberObject> = {}
 
   constructor(enclosing?: Environment) {
     if (enclosing) this.enclosing = enclosing
     else this.enclosing = null
   }
 
-  define(name: string, value: LoxObject): void {
+  define(name: string, value: PlumberObject): void {
     this.values[name] = value
   }
 
@@ -25,7 +25,7 @@ export class Environment {
     return environment
   }
 
-  getAt(distance: number, name: Token): LoxObject {
+  getAt(distance: number, name: Token): PlumberObject {
     const environment = this.ancestor(distance)
 
     if (environment === null)
@@ -34,7 +34,7 @@ export class Environment {
     return environment.get(name)
   }
 
-  assignAt(distance: number, name: Token, value: LoxObject) {
+  assignAt(distance: number, name: Token, value: PlumberObject) {
     const environment = this.ancestor(distance)
 
     if (environment === null)
@@ -43,7 +43,7 @@ export class Environment {
     environment.assign(name, value)
   }
 
-  assign(name: Token, value: LoxObject): void {
+  assign(name: Token, value: PlumberObject): void {
     if (name.lexeme in this.values) {
       this.values[name.lexeme] = value
       return
@@ -57,14 +57,14 @@ export class Environment {
     throw new RuntimeError(`Undefined variable '${name.lexeme}'`, name)
   }
 
-  get(name: Token): LoxObject {
+  get(name: Token): PlumberObject {
     if (name.lexeme in this.values) return this.values[name.lexeme]
     if (this.enclosing !== null) return this.enclosing.get(name)
 
     throw new RuntimeError(`Undefined variable '${name.lexeme}'`, name)
   }
 
-  getThis(): LoxObject {
+  getThis(): PlumberObject {
     return this.values['this']
   }
 }
