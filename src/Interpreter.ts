@@ -36,6 +36,7 @@ import { TokenType } from './ast/TokenType'
 import { RuntimeError } from './errors/error'
 import { AbsFunction } from './lib/abs'
 import { PlumberObject, PlumberCallable, PlumberFunction, Return } from './ast/types'
+import { PowerFunction } from './lib/power'
 
 export class Interpreter implements ExprVisitor<PlumberObject>, StmtVisitor<void> {
   globals = new Environment()
@@ -44,6 +45,7 @@ export class Interpreter implements ExprVisitor<PlumberObject>, StmtVisitor<void
 
   constructor() {
     this.globals.define('ABS', new AbsFunction())
+    this.globals.define('POWER', new PowerFunction())
   }
 
   interpret(target: Array<Stmt>) {
