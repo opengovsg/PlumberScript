@@ -6,6 +6,7 @@ import { Parser } from './Parser'
 import { Interpreter } from './Interpreter'
 import { Token } from './ast/Token'
 import { Resolver } from './Resolver'
+import { color } from './color'
 
 const usage = 'Usage: tslox [script]'
 export class Lox {
@@ -15,7 +16,7 @@ export class Lox {
     const args = process.argv.slice(2)
 
     if (args.length > 1) {
-      console.log(usage)
+      console.log(color.green(usage))
       process.exit(64)
     } else if (args.length === 1) {
       Lox.runFile(args[0])
@@ -29,7 +30,7 @@ export class Lox {
     Lox.run(bytes.toString())
 
     if (errorReporter.hadCliError) {
-      console.log(usage)
+      console.log(color.red(usage))
       process.exit(64)
     }
     if (errorReporter.hadSyntaxError) process.exit(65)
@@ -40,7 +41,7 @@ export class Lox {
     const rl = createInterface({
       input: process.stdin,
       output: process.stdout,
-      prompt: '[tslox]> ',
+      prompt: color.green('[tslox]> '),
     })
 
     rl.on('line', (input) => {
@@ -63,7 +64,7 @@ export class Lox {
     })
 
     rl.on('close', () => {
-      console.log('(exiting)')
+      console.log(color.green('(exiting)'))
       process.exit(0)
     })
 
@@ -90,7 +91,7 @@ export class Lox {
     this.interpreter.interpret(statements)
     if (expr !== null) {
       const value = this.interpreter.evaluate(expr)
-      console.log(this.interpreter.stringify(value))
+      console.log(color.green(this.interpreter.stringify(value)))
     }
   }
 }
