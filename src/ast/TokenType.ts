@@ -32,7 +32,7 @@ export enum TokenType {
   Class = 'Class',
   Else = 'Else',
   False = 'False',
-  Fun = 'Fun',
+  Function = 'Function',
   For = 'For',
   If = 'If',
   Null = 'Null',

@@ -9,7 +9,7 @@ const keywords: Record<string, TokenType> = {
   else: TokenType.Else,
   false: TokenType.False,
   for: TokenType.For,
-  fun: TokenType.Fun,
+  function: TokenType.Function,
   if: TokenType.If,
   null: TokenType.Null,
   or: TokenType.Or,

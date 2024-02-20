@@ -54,7 +54,7 @@ import { SyntaxError } from './errors/error'
  * 
  * - declaration -> classDecl | funDecl | varDecl | statement ;
  * - classDecl -> "class" IDENTIFIER ( "<" IDENTIFIER )? "{" function* "}" ;
- * - funDecl -> "fun" function ;
+ * - funDecl -> "function" function ;
  * - letDecl -> "let" IDENTIFIER ( "=" expression )? ";" ;
  * 
  * STATEMENTS
@@ -156,7 +156,7 @@ export class Parser {
 
   private declaration(): Stmt {
     if (this.match(TokenType.Class)) return this.classDeclaration()
-    if (this.match(TokenType.Fun)) return this.funDeclaration('function')
+    if (this.match(TokenType.Function)) return this.functionDeclaration('function')
     if (this.match(TokenType.Let)) return this.letDeclaration()
     return this.statement()
   }
@@ -174,7 +174,7 @@ export class Parser {
 
     const methods: Array<FunctionStmt> = []
     while (!this.check(TokenType.RightBrace) && !this.isAtEnd()) {
-      methods.push(this.funDeclaration('method'))
+      methods.push(this.functionDeclaration('method'))
     }
 
     this.consume(TokenType.RightBrace, "Expect '}' after class body.")
@@ -294,7 +294,7 @@ export class Parser {
     return new ExpressionStmt(expr)
   }
 
-  private funDeclaration(kind: string): FunctionStmt {
+  private functionDeclaration(kind: string): FunctionStmt {
     const name = this.consume(TokenType.Identifier, `Expect ${kind} name.`)
     this.consume(TokenType.LeftParen, `Expect '(' after ${kind} name.`)
     const parameters: Array<Token> = []
@@ -553,7 +553,7 @@ export class Parser {
       switch (this.peek().type) {
         case TokenType.Class:
         case TokenType.For:
-        case TokenType.Fun:
+        case TokenType.Function:
         case TokenType.If:
         case TokenType.Print:
         case TokenType.Return:
