@@ -86,7 +86,7 @@ import { SyntaxError } from './errors/error'
  * 
  * - unary -> ( "!" | "-" ) unary | call ;
  * - call -> primary ( "(" arguments? ")" | "." IDENTIFIER)* ;
- * - primary -> NUMBER | STRING | "true" | "false" | "nil" | "(" expression ")" | IDENTIFIER | "super" "." IDENTIFIER ;
+ * - primary -> NUMBER | STRING | "true" | "false" | "null" | "(" expression ")" | IDENTIFIER | "super" "." IDENTIFIER ;
  * 
  * UTILITY RULES
  * In order to keep the above rules a little cleaner, some of the grammar is split
@@ -474,7 +474,7 @@ export class Parser {
   private primary(): Expr {
     if (this.match(TokenType.False)) return new LiteralExpr(false)
     if (this.match(TokenType.True)) return new LiteralExpr(true)
-    if (this.match(TokenType.Nil)) return new LiteralExpr(null)
+    if (this.match(TokenType.Null)) return new LiteralExpr(null)
 
     if (this.match(TokenType.Number, TokenType.String))
       return new LiteralExpr(this.previous().literal)

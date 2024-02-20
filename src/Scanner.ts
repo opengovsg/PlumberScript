@@ -11,7 +11,7 @@ const keywords: Record<string, TokenType> = {
   for: TokenType.For,
   fun: TokenType.Fun,
   if: TokenType.If,
-  nil: TokenType.Nil,
+  null: TokenType.Null,
   or: TokenType.Or,
   print: TokenType.Print,
   return: TokenType.Return,

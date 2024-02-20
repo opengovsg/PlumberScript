@@ -35,7 +35,7 @@ export enum TokenType {
   Fun = 'Fun',
   For = 'For',
   If = 'If',
-  Nil = 'Nil',
+  Null = 'Null',
   Or = 'Or',
   Print = 'Print',
   Return = 'Return',
