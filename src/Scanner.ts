@@ -4,7 +4,7 @@ import { PlumberObject } from './ast/types'
 import { SyntaxError } from './errors/error'
 
 const keywords: Record<string, TokenType> = {
-  and: TokenType.And,
+  '&&': TokenType.And,
   class: TokenType.Class,
   else: TokenType.Else,
   extends: TokenType.Extends,
@@ -13,7 +13,7 @@ const keywords: Record<string, TokenType> = {
   function: TokenType.Function,
   if: TokenType.If,
   null: TokenType.Null,
-  or: TokenType.Or,
+  '||': TokenType.Or,
   print: TokenType.Print,
   return: TokenType.Return,
   super: TokenType.Super,
@@ -110,6 +110,14 @@ export class Scanner {
       case '"':
         this.string()
         break
+      case '&':
+        if (this.advance() !== '&') throw new SyntaxError(`Missing '&' ampersand in logical expression.`, this.line)
+        this.addToken(TokenType.And)
+        break
+      case '|':
+        if (this.advance() !== '|') throw new SyntaxError("Missing '|' pipe in logical expression.", this.line)
+        this.addToken(TokenType.Or)
+        break
       default:
         if (this.isDigit(c)) {
           this.number()
@@ -126,6 +134,7 @@ export class Scanner {
     while (this.isAlphaNumeric(this.peek())) this.advance()
 
     const text = this.source.substring(this.start, this.current)
+
     text in keywords
       ? this.addToken(keywords[text])
       : this.addToken(TokenType.Identifier)

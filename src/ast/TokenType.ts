@@ -28,7 +28,7 @@ export enum TokenType {
   Number = 'Number',
 
   // Keywords
-  And = 'And',
+  And = 'And', // '&&'
   Class = 'Class',
   Else = 'Else',
   Extends = 'Extends',
@@ -37,7 +37,7 @@ export enum TokenType {
   For = 'For',
   If = 'If',
   Null = 'Null',
-  Or = 'Or',
+  Or = 'Or', // '||'
   Print = 'Print',
   Return = 'Return',
   Super = 'Super',

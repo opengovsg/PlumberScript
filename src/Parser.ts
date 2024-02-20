@@ -77,8 +77,8 @@ import { SyntaxError } from './errors/error'
  * 
  * - assignment -> ( call "." )? IDENTIFIER "=" assignment | logic_or ;
  * 
- * - logic_or -> logic_and ( "or" logic_and )* ;
- * - logic_and -> equality ( "and" equality )* ;
+ * - logic_or -> logic_and ( "||" logic_and )* ;
+ * - logic_and -> equality ( "&&" equality )* ;
  * - equality -> comparison ( ("!="|"==") comparison )* ;
  * - comparison -> term ( ( ">" | ">=" | "<" | "<=") term )* ;
  * - term -> factor ( ("-"|"+") factor )* ;
