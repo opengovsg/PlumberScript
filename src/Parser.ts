@@ -130,6 +130,26 @@ export class Parser {
     return statements
   }
 
+  parseRepl(): [Stmt[], Expr | null] {
+    // In the REPL, users can input zero or more statements (ending with ';')
+    // followed by an expression (without the ';'). The interpreter executes
+    // all the statements. If there is a trailing expression at the end, the
+    // parser resets and captures this for the interpreter to execute later.
+
+    let cursor = this.current
+    const statements: Stmt[] = []
+    try {
+      while (!this.isAtEnd()) {
+        statements.push(this.declaration())
+        cursor = this.current
+      }
+      return [statements, null]
+    } catch (error) {
+      this.current = cursor
+      return [statements, this.expression()]
+    }
+  }
+
   private expression(): Expr {
     return this.assignment()
   }

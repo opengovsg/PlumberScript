@@ -46,9 +46,9 @@ export class Interpreter implements ExprVisitor<LoxObject>, StmtVisitor<void> {
     this.globals.define('clock', new LoxClockFunction()) // native function clock()
   }
 
-  interpret(statements: Array<Stmt>) {
+  interpret(target: Array<Stmt>) {
     try {
-      for (const statement of statements) {
+      for (const statement of target) {
         this.execute(statement)
       }
     } catch (error) {
@@ -167,7 +167,7 @@ export class Interpreter implements ExprVisitor<LoxObject>, StmtVisitor<void> {
     return a === b
   }
 
-  private stringify(object: LoxObject): string {
+  stringify(object: LoxObject): string {
     if (object === null) return 'nil'
 
     if (typeof object === 'number') {
@@ -185,7 +185,7 @@ export class Interpreter implements ExprVisitor<LoxObject>, StmtVisitor<void> {
     return this.evaluate(expr.expression)
   }
 
-  private evaluate(expr: Expr): LoxObject {
+  evaluate(expr: Expr): LoxObject {
     return expr.accept(this)
   }
 
