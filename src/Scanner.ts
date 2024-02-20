@@ -7,6 +7,7 @@ const keywords: Record<string, TokenType> = {
   and: TokenType.And,
   class: TokenType.Class,
   else: TokenType.Else,
+  extends: TokenType.Extends,
   false: TokenType.False,
   for: TokenType.For,
   function: TokenType.Function,

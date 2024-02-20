@@ -165,7 +165,7 @@ export class Parser {
     const name = this.consume(TokenType.Identifier, 'Expect class name.')
 
     let superclass: VariableExpr | null = null
-    if (this.match(TokenType.Less)) {
+    if (this.match(TokenType.Extends)) {
       this.consume(TokenType.Identifier, 'Expect superclass name.')
       superclass = new VariableExpr(this.previous())
     }

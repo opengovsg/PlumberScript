@@ -31,6 +31,7 @@ export enum TokenType {
   And = 'And',
   Class = 'Class',
   Else = 'Else',
+  Extends = 'Extends',
   False = 'False',
   Function = 'Function',
   For = 'For',
