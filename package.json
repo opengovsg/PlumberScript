@@ -10,9 +10,10 @@
   },
   "bin": {},
   "scripts": {
-    "build": "tsc",
+    "build": "tsc -p tsconfig.build.json",
     "dev": "ts-node-script ./src/index.ts",
     "lint": "eslint",
+    "test": "vitest",
     "plumber": "node ./build/index.js"
   },
   "devDependencies": {
