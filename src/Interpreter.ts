@@ -35,10 +35,18 @@ import { Token } from './ast/Token'
 import { TokenType } from './ast/TokenType'
 import { RuntimeError } from './errors/error'
 import { AbsFunction } from './lib/abs'
-import { PlumberObject, PlumberCallable, PlumberFunction, Return } from './ast/types'
+import {
+  PlumberObject,
+  PlumberCallable,
+  PlumberFunction,
+  Return,
+} from './ast/types'
 import { PowerFunction } from './lib/power'
+import { StrReplaceAllFunction } from './lib/str-replace-all'
 
-export class Interpreter implements ExprVisitor<PlumberObject>, StmtVisitor<void> {
+export class Interpreter
+  implements ExprVisitor<PlumberObject>, StmtVisitor<void>
+{
   globals = new Environment()
   private environment = this.globals
   private readonly locals: Map<Expr, number> = new Map()
@@ -46,6 +54,7 @@ export class Interpreter implements ExprVisitor<PlumberObject>, StmtVisitor<void
   constructor() {
     this.globals.define('ABS', new AbsFunction())
     this.globals.define('POWER', new PowerFunction())
+    this.globals.define('STR_REPLACE_ALL', new StrReplaceAllFunction())
   }
 
   interpret(target: Array<Stmt>) {
@@ -88,31 +97,32 @@ export class Interpreter implements ExprVisitor<PlumberObject>, StmtVisitor<void
   }
 
   visitSuperExpr(expr: SuperExpr): PlumberObject {
-      const distance = this.locals.get(expr)
+    const distance = this.locals.get(expr)
 
-      if (distance === undefined) throw new RuntimeError("Invalid 'super' usage", expr.keyword)
+    if (distance === undefined)
+      throw new RuntimeError("Invalid 'super' usage", expr.keyword)
 
-      const superclass = this.environment.getAt(distance, expr.keyword)
-      if (!(superclass instanceof PlumberClass)) {
-        // Unreachable
-        throw new RuntimeError("Invalid 'super' usage", expr.keyword)
-      }
+    const superclass = this.environment.getAt(distance, expr.keyword)
+    if (!(superclass instanceof PlumberClass)) {
+      // Unreachable
+      throw new RuntimeError("Invalid 'super' usage", expr.keyword)
+    }
 
-      const object = this.environment.enclosing?.getThis()
-      if (!(object instanceof PlumberInstance)) {
-        // Unreachable
-        throw new RuntimeError("Invalid 'super' usage", expr.keyword)
-      }
+    const object = this.environment.enclosing?.getThis()
+    if (!(object instanceof PlumberInstance)) {
+      // Unreachable
+      throw new RuntimeError("Invalid 'super' usage", expr.keyword)
+    }
 
-      const method = superclass.findMethod(expr.method.lexeme)
-      if (method === null) {
-        throw new RuntimeError(
-          `Undefined property ${expr.method.lexeme}.`,
-          expr.method
-        )
-      }
+    const method = superclass.findMethod(expr.method.lexeme)
+    if (method === null) {
+      throw new RuntimeError(
+        `Undefined property ${expr.method.lexeme}.`,
+        expr.method,
+      )
+    }
 
-      return method.bind(object)
+    return method.bind(object)
   }
 
   visitThisExpr(expr: ThisExpr): PlumberObject {
@@ -152,7 +162,11 @@ export class Interpreter implements ExprVisitor<PlumberObject>, StmtVisitor<void
     throw new RuntimeError('Operand must be a number.', operator)
   }
 
-  checkNumberOperands(operator: Token, left: PlumberObject, right: PlumberObject) {
+  checkNumberOperands(
+    operator: Token,
+    left: PlumberObject,
+    right: PlumberObject,
+  ) {
     if (typeof left === 'number' && typeof right === 'number') return
     throw new RuntimeError('Operands must be numbers.', operator)
   }
@@ -222,8 +236,8 @@ export class Interpreter implements ExprVisitor<PlumberObject>, StmtVisitor<void
       superclass = this.evaluate(stmt.superclass)
       if (!(superclass instanceof PlumberClass)) {
         throw new RuntimeError(
-          "Superclass must be a class",
-          stmt.superclass.name
+          'Superclass must be a class',
+          stmt.superclass.name,
         )
       }
     }
@@ -232,7 +246,7 @@ export class Interpreter implements ExprVisitor<PlumberObject>, StmtVisitor<void
 
     if (stmt.superclass !== null) {
       this.environment = new Environment(this.environment)
-      this.environment.define("super", superclass)
+      this.environment.define('super', superclass)
     }
 
     const methods: Record<string, PlumberFunction> = {}
