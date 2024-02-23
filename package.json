@@ -10,9 +10,10 @@
   },
   "bin": {},
   "scripts": {
-    "build": "tsc",
+    "build": "tsc -p tsconfig.build.json",
     "dev": "ts-node-script ./src/index.ts",
     "lint": "eslint",
+    "test": "vitest",
     "plumber": "node ./build/index.js"
   },
   "devDependencies": {
@@ -22,6 +23,7 @@
     "eslint": "^8.56.0",
     "prettier": "^3.2.4",
     "ts-node": "^10.9.2",
-    "typescript": "^5.3.3"
+    "typescript": "^5.3.3",
+    "vitest": "^1.3.1"
   }
 }
