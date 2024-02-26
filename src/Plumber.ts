@@ -70,14 +70,14 @@ export class PlumberScript {
     const [statements, expr] = parser.parseRepl()
 
     // Stop if there was a syntax error
-    if (errorReporter.hadSyntaxError) return null
+    if (errorReporter.hadSyntaxError) throw errorReporter.error
 
     const resolver = new Resolver(this.interpreter)
     resolver.resolve(statements)
     if (expr !== null) resolver.resolve(expr)
 
     // Stop if there was a resolution error
-    if (errorReporter.hadResolvingError) return null
+    if (errorReporter.hadResolvingError) throw errorReporter.error
 
     this.interpreter.interpret(statements)
     if (expr !== null) {
