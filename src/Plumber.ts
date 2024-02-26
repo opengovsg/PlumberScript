@@ -7,6 +7,7 @@ import { Interpreter } from './Interpreter'
 import { Token } from './ast/Token'
 import { Resolver } from './Resolver'
 import { color } from './color'
+import { PlumberObject } from './ast/types'
 
 const usage = 'Usage: plumber [script]'
 export class PlumberScript {
@@ -14,7 +15,7 @@ export class PlumberScript {
 
   static runFile(path: string): void {
     const bytes = fs.readFileSync(path)
-    PlumberScript.run(bytes.toString())
+    PlumberScript.evaluate(bytes.toString())
 
     if (errorReporter.hadCliError) {
       console.log(color.red(usage))
@@ -38,7 +39,10 @@ export class PlumberScript {
 
       if (line) {
         try {
-          PlumberScript.run(line)
+          const value = PlumberScript.evaluate(line)
+          if (value !== null) {
+            console.log(color.green(this.interpreter.stringify(value)))
+          }
         } catch (error) {
           errorReporter.report(error as Error)
         }
@@ -58,7 +62,7 @@ export class PlumberScript {
     rl.prompt()
   }
 
-  static run(source: string): void {
+  static evaluate(source: string): PlumberObject | null {
     const scanner = new Scanner(source)
     const tokens: Array<Token> = scanner.scanTokens()
 
@@ -66,19 +70,20 @@ export class PlumberScript {
     const [statements, expr] = parser.parseRepl()
 
     // Stop if there was a syntax error
-    if (errorReporter.hadSyntaxError) return
+    if (errorReporter.hadSyntaxError) return null
 
     const resolver = new Resolver(this.interpreter)
     resolver.resolve(statements)
     if (expr !== null) resolver.resolve(expr)
 
     // Stop if there was a resolution error
-    if (errorReporter.hadResolvingError) return
+    if (errorReporter.hadResolvingError) return null
 
     this.interpreter.interpret(statements)
     if (expr !== null) {
-      const value = this.interpreter.evaluate(expr)
-      console.log(color.green(this.interpreter.stringify(value)))
+      return this.interpreter.evaluate(expr)
     }
+
+    return null
   }
 }
