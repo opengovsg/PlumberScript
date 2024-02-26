@@ -14,6 +14,6 @@ export class PowerFunction extends PlumberCallable {
   }
 
   toString(): string {
-    return "<native function 'ABS'>"
+    return "<native function 'POWER'>"
   }
 }
