@@ -11,11 +11,13 @@ import { PlumberObject } from './ast/types'
 
 const usage = 'Usage: plumber [script]'
 export class PlumberScript {
-  private static readonly interpreter = new Interpreter()
+  private readonly interpreter = new Interpreter()
 
   static runFile(path: string): void {
+    const plumberscript = new PlumberScript()
+
     const bytes = fs.readFileSync(path)
-    PlumberScript.evaluate(bytes.toString())
+    plumberscript.evaluate(bytes.toString())
 
     if (errorReporter.hadCliError) {
       console.log(color.red(usage))
@@ -26,6 +28,8 @@ export class PlumberScript {
   }
 
   static runPrompt(): void {
+    const plumberscript = new PlumberScript()
+
     const rl = createInterface({
       input: process.stdin,
       output: process.stdout,
@@ -39,9 +43,9 @@ export class PlumberScript {
 
       if (line) {
         try {
-          const value = PlumberScript.evaluate(line)
+          const value = plumberscript.evaluate(line)
           if (value !== null) {
-            console.log(color.green(this.interpreter.stringify(value)))
+            console.log(color.green(plumberscript.interpreter.stringify(value)))
           }
         } catch (error) {
           errorReporter.report(error as Error)
@@ -62,7 +66,7 @@ export class PlumberScript {
     rl.prompt()
   }
 
-  static evaluate(source: string): PlumberObject | null {
+  evaluate(source: string): PlumberObject | null {
     const scanner = new Scanner(source)
     const tokens: Array<Token> = scanner.scanTokens()
 
