@@ -9,12 +9,12 @@ import { Resolver } from './Resolver'
 import { color } from './color'
 
 const usage = 'Usage: plumber [script]'
-export class Plumber {
+export class PlumberScript {
   private static readonly interpreter = new Interpreter()
 
   static runFile(path: string): void {
     const bytes = fs.readFileSync(path)
-    Plumber.run(bytes.toString())
+    PlumberScript.run(bytes.toString())
 
     if (errorReporter.hadCliError) {
       console.log(color.red(usage))
@@ -38,7 +38,7 @@ export class Plumber {
 
       if (line) {
         try {
-          Plumber.run(line)
+          PlumberScript.run(line)
         } catch (error) {
           errorReporter.report(error as Error)
         }

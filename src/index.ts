@@ -1,3 +1,3 @@
-import { Plumber } from './Plumber'
+import { PlumberScript } from './Plumber'
 
-export = Plumber
+export = PlumberScript
