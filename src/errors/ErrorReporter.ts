@@ -9,7 +9,7 @@ class ErrorReporter {
 
   report(error: PlumberError): void {
     this.error = error
-    console.error(`${error.toString()} ${error.message}`)
+    console.error(error.toString())
 
     if (error instanceof RuntimeError) this.hadRuntimeError = true
     else if (error instanceof SyntaxError) this.hadSyntaxError = true

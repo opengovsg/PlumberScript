@@ -27,7 +27,7 @@ export abstract class PlumberError extends Error {
     }
     header += ']'
 
-    return header
+    return `${header} ${this.message}`
   }
 }
 
