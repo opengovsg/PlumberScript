@@ -12,20 +12,7 @@ const usage = 'Usage: plumber [script]'
 export class Plumber {
   private static readonly interpreter = new Interpreter()
 
-  static main(): void {
-    const args = process.argv.slice(2)
-
-    if (args.length > 1) {
-      console.log(color.green(usage))
-      process.exit(64)
-    } else if (args.length === 1) {
-      Plumber.runFile(args[0])
-    } else {
-      Plumber.runPrompt()
-    }
-  }
-
-  private static runFile(path: string): void {
+  static runFile(path: string): void {
     const bytes = fs.readFileSync(path)
     Plumber.run(bytes.toString())
 
@@ -37,7 +24,7 @@ export class Plumber {
     if (errorReporter.hadRuntimeError) process.exit(70)
   }
 
-  private static runPrompt(): void {
+  static runPrompt(): void {
     const rl = createInterface({
       input: process.stdin,
       output: process.stdout,
@@ -71,7 +58,7 @@ export class Plumber {
     rl.prompt()
   }
 
-  private static run(source: string) {
+  static run(source: string): void {
     const scanner = new Scanner(source)
     const tokens: Array<Token> = scanner.scanTokens()
 

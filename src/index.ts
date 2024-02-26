@@ -1,3 +1,3 @@
 import { Plumber } from './Plumber'
 
-Plumber.main()
+export = Plumber

@@ -11,10 +11,10 @@
   "bin": {},
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
-    "dev": "ts-node-script ./src/index.ts",
+    "dev": "ts-node-script ./src/main.ts",
     "lint": "eslint",
     "test": "vitest",
-    "plumber": "node ./build/index.js"
+    "plumber": "node ./build/main.js"
   },
   "devDependencies": {
     "@types/node": "^20.11.5",
