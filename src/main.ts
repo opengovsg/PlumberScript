@@ -1,5 +1,5 @@
 import { color } from './color'
-import { PlumberScript } from './Plumber'
+import { PlumberScript } from './PlumberScript'
 
 const args = process.argv.slice(2)
 
