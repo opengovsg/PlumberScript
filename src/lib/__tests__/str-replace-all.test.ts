@@ -1,10 +1,8 @@
 import { describe, expect, it } from 'vitest'
 
-import { StrReplaceAllFunction } from '../str-replace-all'
-import { type Interpreter } from '../../Interpreter'
+import { PlumberScript } from '../../PlumberScript'
 
-const STUB_INTERPRETER = {} as unknown as Interpreter
-const fn = new StrReplaceAllFunction()
+const plumber = new PlumberScript()
 
 describe('STR_REPLACE_ALL', () => {
   it.each([
@@ -17,12 +15,12 @@ describe('STR_REPLACE_ALL', () => {
       expectedOutput: 'test a',
     },
   ])('replaces all occurances of the substring', ({ args, expectedOutput }) => {
-    const result = fn.call(STUB_INTERPRETER, args)
+    const result = plumber.evaluate(`STR_REPLACE_ALL(${args.map(arg => `"${arg}"`).join(',')})`)
     expect(result).toEqual(expectedOutput)
   })
 
   it('returns null if arguments are not strings', () => {
-    const result = fn.call(STUB_INTERPRETER, ['aa a', 1, 'test'])
+    const result = plumber.evaluate(`STR_REPLACE_ALL("aa a",1,"test")`)
     expect(result).toBeNull()
   })
 
