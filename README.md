@@ -4,13 +4,33 @@ A safe programming sandbox for Plumber Compute, implemented in TypeScript.
 
 ## Getting Started
 
-First, get your repository set up with:
+### Development
+
+Get your repository set up with:
 
 ```bash
 git clone https://github.com/opengovsg/PlumberScript.git
 cd PlumberScript
 npm install
 ```
+
+### Library usage
+
+Example in Typescript:
+
+```typescript
+import { PlumberScript } from '@opengovsg/plumberscript'
+
+const plumber = new PlumberScript()
+
+plumber.evaluate(`let x = 1;`)
+plumber.evaluate(`let y = 2;`)
+const value = plumber.evaluate(`x + y`)
+
+console.log(value) // 3
+```
+
+### REPL usage
 
 Build and run the compiled version with
 
