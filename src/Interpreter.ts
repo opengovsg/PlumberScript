@@ -43,6 +43,7 @@ import {
 } from './ast/types'
 import { PowerFunction } from './lib/power'
 import { StrReplaceAllFunction } from './lib/str-replace-all'
+import { UnidecodeFunction } from './lib/unidecode'
 
 export class Interpreter
   implements ExprVisitor<PlumberObject>, StmtVisitor<void>
@@ -55,6 +56,7 @@ export class Interpreter
     this.globals.define('ABS', new AbsFunction())
     this.globals.define('POWER', new PowerFunction())
     this.globals.define('STR_REPLACE_ALL', new StrReplaceAllFunction())
+    this.globals.define('UNIDECODE', new UnidecodeFunction())
   }
 
   interpret(target: Array<Stmt>) {
