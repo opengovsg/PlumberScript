@@ -75,6 +75,8 @@ The following Plumber Functions are currently available:
 
 - `ABS(number)`: Returns the absolute value of a number
 - `POWER(base, exponent)`: Returns the result of a number raised to a power
+- `STR_REPLACE_ALL(input, search, replace)`: Replace all instances of a substring using a search string.
+- `UNIDECODE(string)`: Converts UTF-8 data into ASCII characters, mostly by transliteration (pronunciation).
 
 These functions are implemented in [src/lib](src/lib), but more can be readily implemented when necessary.
 
