@@ -1,3 +1,7 @@
-import { Plumber } from './Plumber'
+import { PlumberScript } from './PlumberScript'
+import { PlumberError } from './errors/error'
 
-Plumber.main()
+export = {
+    PlumberScript,
+    PlumberError,
+}

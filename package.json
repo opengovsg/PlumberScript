@@ -1,7 +1,8 @@
 {
-  "name": "PlumberScript",
+  "name": "@opengovsg/plumberscript",
   "description": "Programming language for Plumber Compute, implemented in TypeScript",
   "author": "Yuanruo Liang <yuanruo@open.gov.sg>",
+  "main": "./dist/index.js",
   "private": true,
   "license": "MIT",
   "repository": {
@@ -11,10 +12,10 @@
   "bin": {},
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
-    "dev": "ts-node-script ./src/index.ts",
+    "dev": "ts-node-script ./src/main.ts",
     "lint": "eslint",
     "test": "vitest",
-    "plumber": "node ./build/index.js"
+    "plumber": "node ./dist/main.js"
   },
   "devDependencies": {
     "@types/node": "^20.11.5",
