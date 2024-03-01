@@ -3,7 +3,6 @@
   "description": "Programming language for Plumber Compute, implemented in TypeScript",
   "author": "Yuanruo Liang <yuanruo@open.gov.sg>",
   "main": "./dist/index.js",
-  "private": true,
   "license": "MIT",
   "repository": {
     "type": "git",
