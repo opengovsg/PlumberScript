@@ -2,8 +2,8 @@ import { Interpreter } from '../Interpreter'
 import { PlumberCallable, PlumberObject } from '../ast/types'
 
 export class StrReplaceAllFunction extends PlumberCallable {
-  arity(): number {
-    return 3
+  arity(argLength: number): boolean {
+    return argLength === 3
   }
 
   call(_: Interpreter, args: Array<PlumberObject>): PlumberObject {

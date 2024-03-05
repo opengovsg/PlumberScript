@@ -382,9 +382,9 @@ export class Interpreter
       throw new RuntimeError('Can only call functions and classes', expr.paren)
     }
 
-    if (args.length !== callee.arity()) {
+    if (!callee.arity(args.length)) {
       throw new RuntimeError(
-        `Expected ${callee.arity()} arguments but got ${args.length}.`,
+        `Incorrect number of arguments provided: ${args.length}.`,
         expr.paren,
       )
     }

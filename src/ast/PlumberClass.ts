@@ -40,9 +40,9 @@ export class PlumberClass extends PlumberCallable {
     return instance
   }
 
-  arity(): number {
+  arity(argLength: number): boolean {
     const initializer = this.findMethod('init')
-    if (initializer === null) return 0
-    return initializer.arity()
+    if (initializer === null) return true
+    return initializer.arity(argLength)
   }
 }
