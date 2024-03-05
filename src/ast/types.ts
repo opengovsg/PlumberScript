@@ -4,7 +4,7 @@ import { PlumberInstance } from './PlumberInstance'
 import { FunctionStmt } from './Stmt'
 
 export abstract class PlumberCallable {
-  abstract arity(): number
+  abstract arity(argLength: number): boolean
   abstract call(interpreter: Interpreter, args: Array<PlumberObject>): PlumberObject
 }
 
@@ -34,8 +34,8 @@ export class PlumberFunction extends PlumberCallable {
     return `<fn ${this.declaration.name.lexeme}>`
   }
 
-  arity(): number {
-    return this.declaration.params.length
+  arity(argLength: number): boolean {
+    return argLength === this.declaration.params.length
   }
 
   call(interpreter: Interpreter, args: Array<PlumberObject>): PlumberObject {

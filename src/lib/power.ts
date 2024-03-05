@@ -2,8 +2,8 @@ import { Interpreter } from '../Interpreter'
 import { PlumberCallable, PlumberObject } from '../ast/types'
 
 export class PowerFunction extends PlumberCallable {
-  arity(): number {
-    return 2
+  arity(argLength: number): boolean {
+    return argLength === 2
   }
 
   call(_: Interpreter, args: Array<PlumberObject>): PlumberObject {
