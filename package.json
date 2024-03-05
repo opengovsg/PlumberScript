@@ -19,7 +19,7 @@
     "lint": "eslint",
     "test": "vitest",
     "plumber": "node ./dist/main.js",
-    "prepublish": "npm run build"
+    "prepack": "npm run build"
   },
   "devDependencies": {
     "@types/node": "^20.11.5",
